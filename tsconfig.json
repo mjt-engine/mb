@@ -8,8 +8,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "strict": true,
-    "esModuleInterop": true,
-    "moduleDetection": "force",
+    "esModuleInterop": true
   },
   "include": ["src"]
 }

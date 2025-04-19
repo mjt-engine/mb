@@ -82,7 +82,9 @@ export const connect = async <
         onResponse,
         signal,
       } = props;
-      const requestMsg = Bytes.toMsgPack({ value: request } as ValueOrError);
+      const requestMsg = Bytes.toMsgPack({
+        value: request,
+      } as ValueOrError);
       const { timeoutMs = 60 * 1000 } = options;
 
       const hs = recordToMsgMeta(headers);
@@ -128,7 +130,9 @@ export const connect = async <
       options?: Partial<{ timeoutMs: number }>;
     }): Promise<CM[S]["response"]> => {
       const { request, subject, headers, options = {} } = props;
-      const requestMsg = Bytes.toMsgPack({ value: request } as ValueOrError);
+      const requestMsg = Bytes.toMsgPack({
+        value: request,
+      } as ValueOrError);
       const { timeoutMs = defaultTimeoutMs } = options;
 
       const meta = recordToMsgMeta(headers);
@@ -148,7 +152,9 @@ export const connect = async <
       headers?: Record<keyof CM[S]["headers"], string>;
     }): Promise<void> => {
       const { payload, subject, headers } = props;
-      const msg = Bytes.toMsgPack({ value: payload } as ValueOrError);
+      const msg = Bytes.toMsgPack({
+        value: payload,
+      } as ValueOrError);
 
       return runtime.publish(subject as string, msg, {
         meta: headers,
