@@ -1,0 +1,37 @@
+{
+  "name": "@mjt-engine/mq",
+  "version": "1.0.0",
+  "sideEffects": false,
+  "description": "MJT Rogue UI",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "docs": "typedoc src/index.ts",
+    "build-docs": "pnpm run build && pnpm run docs",
+    "changelog": "./scripts/changes.sh > CHANGELOG.md",
+    "changelog-version": "pnpm run changelog && ./scripts/version.sh",
+    "publish": "pnpm run build-docs && pnpm run changelog-version",
+    "check": "tsc --noEmit -w",
+    "test": "vitest",
+    "start": "vite build --watch",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 vite build",
+    "dts": "tsc"
+  },
+  "keywords": [],
+  "author": "Matt Taylor (https://mjt.dev)",
+  "license": "MIT",
+  "devDependencies": {
+    "typedoc": "^0.27.9",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.0",
+    "vite-plugin-arraybuffer": "^0.1.0",
+    "vitest": "^3.1.1"
+  },
+  "dependencies": {
+    "@mjt-engine/byte": "github:mjt-engine/byte",
+    "@mjt-engine/error": "github:mjt-engine/error",
+    "@mjt-engine/object": "github:mjt-engine/object",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

@@ -1,0 +1,1 @@
+# MJT MQ written in pure TypeScript
