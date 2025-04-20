@@ -6,35 +6,40 @@ describe("EventEmmitterChannel", () => {
     const elc = EventEmitterChannel<string>();
     const result = await new Promise((resolve) => {
       elc.listenOn("test", (data) => {
-        resolve(data);
+        resolve("got:" + data);
       });
       elc.postOn("test", "Hello, world!");
     });
-    expect(result).toBe("Hello, world!");
+    expect(result).toBe("got:Hello, world!");
   });
   test("regex listen/post", async () => {
     const elc = EventEmitterChannel<string>();
     const result = await new Promise((resolve) => {
       elc.listenOn(/t.*/, (data) => {
-        resolve(data);
+        resolve("got:" + data);
       });
       elc.postOn("test", "Hello, world!");
     });
-    expect(result).toBe("Hello, world!");
+    expect(result).toBe("got:Hello, world!");
   });
-  test("async listen/post", async () => {
+  test("async itr listen/post", async () => {
     const elc = EventEmitterChannel<string>();
     const promise = new Promise(async (resolve) => {
-      for await (const data of elc.listenOn("test")()) {
-        if (data === "2") {
-          resolve(data);
+      for await (const data of elc.listenOn("test", (d, meta) => {
+        return `transformed:` + d;
+      })) {
+        if (data === "3") {
+          resolve("got:" + data);
+        }
+        if (data === "transformed:3") {
+          resolve("got:" + data);
         }
       }
     });
     elc.postOn("test", "1");
     elc.postOn("test", "2");
     elc.postOn("test", "3");
-    expect(await promise).toBe("2");
+    expect(await promise).toBe("got:transformed:3");
   });
   test("req/rep", async () => {
     const elc = EventEmitterChannel<string>();

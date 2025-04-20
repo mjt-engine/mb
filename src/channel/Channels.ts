@@ -1,7 +1,9 @@
+import { Bytes } from "@mjt-engine/byte";
+
 type AbortableProducer<T> = (signal?: AbortSignal) => (value: T) => void;
 type AbortableListener<T> = (
   signal?: AbortSignal
-) => (callback: (value: T) => void) => AsyncIterable<T>;
+) => (callback?: (value: T) => T | void) => AsyncIterable<T>;
 
 export type ChannelMessage<T> = {
   subject: string;
@@ -45,7 +47,7 @@ export const Channel = <T>({
       signal?.addEventListener("abort", () => {
         abortCotroller.abort();
       });
-      const itr = listenerProducer(abortCotroller.signal)(async (msg) => {
+      const itr = listenerProducer(abortCotroller.signal)((msg) => {
         if (
           typeof subject === "string"
             ? msg.subject === subject
@@ -70,7 +72,7 @@ export const Channel = <T>({
                   });
                 }
 
-                // Send an undefined message to indicate completion
+                // Send a finished/undefined data message to indicate completion
                 posterProducer(abortCotroller.signal)({
                   subject: msg.reply!,
                   data: undefined!,
@@ -82,9 +84,13 @@ export const Channel = <T>({
               abortCotroller.abort();
             }
           }
+          if (resp && !isAsyncIterable(resp)) {
+            return { ...msg, data: resp };
+          }
         }
+        return msg;
       });
-      return async function* () {
+      return (async function* () {
         for await (const msg of itr) {
           if (
             typeof subject === "string"
@@ -94,7 +100,7 @@ export const Channel = <T>({
             yield msg.data;
           }
         }
-      };
+      })();
     },
     request: async (
       operation: string,
@@ -120,6 +126,18 @@ export const Channel = <T>({
           responseSubject,
           (responseData) => {
             clearTimeout(timeoutId!);
+            if (responseData && responseData instanceof Uint8Array) {
+              const r = Bytes.msgPackToObject<string>(
+                responseData as Uint8Array
+              );
+              console.log("CHANNEL Response received:", r);
+            }
+            // .then((data) => {})
+            // Bytes.msgPackToObject(responseData).then((data) => {
+            //   console.log("Response received:", data);
+            // });
+            // Bytes.msgPackToObject([]).then((data) => {});
+            // console.log("Response received:", await Bytes.msgPackToObject(responseData));
             resolve(responseData);
           },
           { signal, once: true }
@@ -137,7 +155,7 @@ export const Channel = <T>({
       request: T;
       callback?: (responseData: T) => void;
       options?: Partial<{ signal: AbortSignal; timeOutMs: number }>;
-    }): Promise<() => AsyncIterable<T>> => {
+    }): Promise<AsyncIterable<T>> => {
       const { signal, timeOutMs } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {

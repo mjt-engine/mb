@@ -1,3 +1,4 @@
+import { Bytes } from "@mjt-engine/byte";
 import { Channel } from "../channel/Channels";
 import { EventEmitterChannel } from "../channel/EventEmitterChannel";
 import {
@@ -57,7 +58,7 @@ export const TsMqRuntime = (
         },
         [Symbol.asyncIterator]: function (): AsyncIterator<Msg> {
           const payloadToMsg = async function* () {
-            for await (const data of itr()) {
+            for await (const data of itr) {
               yield {
                 subject,
                 data: data!,
@@ -80,6 +81,10 @@ export const TsMqRuntime = (
       const result = await channel.request(subject, payload, {
         timeOutMs: opts?.timeout,
       });
+      console.log(
+        "CHANNEL REQUEST RESULT",
+        await Bytes.msgPackToObject(result as Uint8Array)
+      );
       return {
         subject: subject,
         data: result!,
@@ -93,12 +98,10 @@ export const TsMqRuntime = (
       payload?: Payload,
       opts?: Partial<RequestManyOptions>
     ): Promise<AsyncIterable<Msg>> {
-      const result = (
-        await channel.requestMany({
-          operation: subject,
-          request: payload,
-        })
-      )();
+      const result = await channel.requestMany({
+        operation: subject,
+        request: payload,
+      });
       const payloadToMsg = async function* () {
         for await (const data of result) {
           yield {

@@ -52,6 +52,7 @@ export type Msg = {
    * message - this is the same as doing `nc.publish(msg.reply, ...)`.
    * @param payload
    * @param opts
+   * @deprecated
    */
   respond(payload?: Payload, opts?: PublishOptions): boolean;
 };

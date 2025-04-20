@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { Channel, ChannelMessage } from "./Channels";
+import { isDefined } from "@mjt-engine/object";
 
 export const EventEmitterChannel = <T>() => {
   const bus = new EventEmitter();
@@ -18,13 +19,15 @@ export const EventEmitterChannel = <T>() => {
         const iterState = {
           resolve: undefined as ((value?: unknown) => void) | undefined,
         };
-        const listener = (data: any) => {
+        const listener = (data: ChannelMessage<T>) => {
           if (signal?.aborted) {
             return;
           }
-          messageQueue.push(data);
+          const resp = callback?.(data);
+          const queueData = isDefined(resp) ? resp : data;
+
+          messageQueue.push(queueData!);
           iterState.resolve?.();
-          callback(data);
         };
         signal?.addEventListener("abort", () => {
           bus.off("message", listener);
@@ -33,18 +36,14 @@ export const EventEmitterChannel = <T>() => {
 
         return {
           [Symbol.asyncIterator]: async function* () {
-            try {
-              while (!signal?.aborted) {
-                if (messageQueue.length > 0) {
-                  yield messageQueue.shift()!;
-                } else {
-                  await new Promise((resolve) => {
-                    iterState.resolve = resolve;
-                  });
-                }
+            while (!signal?.aborted) {
+              if (messageQueue.length > 0) {
+                yield messageQueue.shift()!;
+              } else {
+                await new Promise((resolve) => {
+                  iterState.resolve = resolve;
+                });
               }
-            } finally {
-              bus.off("message", listener);
             }
           },
         } as AsyncIterable<ChannelMessage<T>>;

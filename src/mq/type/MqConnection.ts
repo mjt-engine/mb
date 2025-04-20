@@ -32,11 +32,6 @@ export interface RequestOptions {
  */
 export interface SubOpts<T> {
   /**
-   * Optional queue name (subscriptions on the same subject that use queues
-   * are horizontally load balanced when part of the same queue).
-   */
-  queue?: string;
-  /**
    * Optional maximum number of messages to deliver to the subscription
    * before it is auto-unsubscribed.
    */

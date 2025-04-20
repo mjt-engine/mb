@@ -1,11 +1,12 @@
 import { Bytes } from "@mjt-engine/byte";
-import { isDefined, isUndefined } from "@mjt-engine/object";
 import { Errors } from "@mjt-engine/error";
+import { isDefined, isUndefined } from "@mjt-engine/object";
 import { msgMetaToHeadersRecord } from "./msgMetaToHeadersRecord";
 import { sendMessageError } from "./sendMessageError";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { MqRuntime } from "./type/MqConnection";
+import { MsgMeta } from "./type/Msg";
 import type { ValueOrError } from "./type/ValueOrError";
 
 export const connectConnectionListenerToSubject = async <
@@ -24,7 +25,6 @@ export const connectConnectionListenerToSubject = async <
   connection: MqRuntime;
   listener: ConnectionListener<CM, S, E>;
   options?: Partial<{
-    queue?: string;
     maxMessages?: number;
     timeout?: number;
     log: (message: unknown, ...extra: unknown[]) => void;
@@ -32,10 +32,9 @@ export const connectConnectionListenerToSubject = async <
   env?: Partial<E>;
   signal?: AbortSignal;
 }) => {
-  const { log = () => {}, queue, maxMessages, timeout } = options;
+  const { log = () => {}, maxMessages, timeout } = options;
   log("connectConnectionListenerToSubject: subject: ", subject);
   const subscription = connection.subscribe(subject, {
-    queue,
     max: maxMessages,
     timeout,
   });
@@ -51,6 +50,21 @@ export const connectConnectionListenerToSubject = async <
   }
 
   for await (const message of subscription) {
+    const send = (response?: CM[S]["response"], meta: MsgMeta = {}) => {
+      if (isUndefined(response)) {
+        return;
+      }
+
+      if (isDefined(message.reply)) {
+        const responseMsg = Bytes.toMsgPack({
+          value: response,
+        } as ValueOrError);
+        console.log(`sending to: ${message.reply}`);
+        connection.publish(message.reply, responseMsg, {
+          meta,
+        });
+      }
+    };
     try {
       const valueOrError = Bytes.msgPackToObject<
         ValueOrError<CM[S]["request"]>
@@ -70,36 +84,9 @@ export const connectConnectionListenerToSubject = async <
           },
         });
       }
-      const send = (
-        response?: CM[S]["response"],
-        options: Partial<{
-          code: number;
-          codeDescription: string;
-          headers: Record<string, string>;
-        }> = {}
-      ) => {
-        if (isUndefined(response)) {
-          connection.publish(message.reply!);
-          return;
-        }
-        const responseMsg = Bytes.toMsgPack({
-          value: response,
-        } as ValueOrError);
-        message.respond(responseMsg, {
-          // headers: responseHeaders,
 
-          meta: options.headers,
-        });
-      };
-
-      const sendError = async (
-        error: unknown,
-        options: Partial<{
-          code: number;
-          codeDescription: string;
-          headers: Record<string, string>;
-        }> = {}
-      ) => sendMessageError(message)(error, options);
+      const sendError = async (error: unknown, meta: MsgMeta = {}) =>
+        sendMessageError(send)(message, meta)(error);
 
       const unsubscribe = (maxMessages?: number) =>
         subscription.unsubscribe(maxMessages);
@@ -111,6 +98,9 @@ export const connectConnectionListenerToSubject = async <
         );
         continue;
       }
+      console.log(
+        `calling listner for ${message.subject} that has reply ${message.reply}`
+      );
 
       const result = await listener({
         detail: valueOrError.value,
@@ -121,18 +111,18 @@ export const connectConnectionListenerToSubject = async <
         sendError,
         unsubscribe,
       });
-      const reply = message.reply;
-      if (isUndefined(reply)) {
-        continue;
-      }
+      console.log("!!!!!!!!!!!!result", result);
       send(result);
+      console.log(
+        `SENT '${result}' !!!!!!!!!!!!result maybe to:${message.reply}`
+      );
     } catch (error) {
       const errorDetail = await Errors.errorToErrorDetail({
         error,
         extra: [message.subject],
       });
       log(errorDetail);
-      sendMessageError(message)(error);
+      sendMessageError(send)(message)(error);
     }
   }
 };
