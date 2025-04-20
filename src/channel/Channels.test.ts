@@ -22,6 +22,20 @@ describe("EventEmmitterChannel", () => {
     });
     expect(result).toBe("Hello, world!");
   });
+  test("async listen/post", async () => {
+    const elc = EventEmitterChannel<string>();
+    const promise = new Promise(async (resolve) => {
+      for await (const data of elc.listenOn("test")()) {
+        if (data === "2") {
+          resolve(data);
+        }
+      }
+    });
+    elc.postOn("test", "1");
+    elc.postOn("test", "2");
+    elc.postOn("test", "3");
+    expect(await promise).toBe("2");
+  });
   test("req/rep", async () => {
     const elc = EventEmitterChannel<string>();
     elc.listenOn("test", (data) => {

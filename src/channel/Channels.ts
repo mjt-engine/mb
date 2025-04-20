@@ -1,9 +1,13 @@
 type AbortableProducer<T> = (signal?: AbortSignal) => (value: T) => void;
 type AbortableListener<T> = (
   signal?: AbortSignal
-) => (callback: (value: T) => void) => void;
+) => (callback: (value: T) => void) => AsyncIterable<T>;
 
-type Msg<T> = {
+const testAsyncIterable = async function* () {
+  yield "test";
+};
+
+export type ChannelMessage<T> = {
   subject: string;
   data: T;
   reply?: string;
@@ -14,8 +18,8 @@ export const Channel = <T>({
   posterProducer,
   listenerProducer,
 }: {
-  posterProducer: AbortableProducer<Msg<T>>;
-  listenerProducer: AbortableListener<Msg<T>>;
+  posterProducer: AbortableProducer<ChannelMessage<T>>;
+  listenerProducer: AbortableListener<ChannelMessage<T>>;
 }) => {
   const mod = {
     postOn: (
@@ -29,9 +33,9 @@ export const Channel = <T>({
       const { signal, reply } = options;
       posterProducer(signal)({ subject, data, reply });
     },
-    listenOn: (
+    listenOn: function (
       subject: string | RegExp,
-      callback: (
+      callback?: (
         data: T,
         meta: { finished: boolean }
       ) => T | void | AsyncIterable<T>,
@@ -39,19 +43,21 @@ export const Channel = <T>({
         signal?: AbortSignal;
         once?: boolean;
       }> = {}
-    ) => {
+    ) {
       const { signal, once } = options;
       const abortCotroller = new AbortController();
       signal?.addEventListener("abort", () => {
         abortCotroller.abort();
       });
-      listenerProducer(abortCotroller.signal)((msg) => {
+      const itr = listenerProducer(abortCotroller.signal)(async (msg) => {
         if (
           typeof subject === "string"
             ? msg.subject === subject
             : subject.test(msg.subject)
         ) {
-          const resp = callback(msg.data, { finished: msg.finished ?? false });
+          const resp = callback?.(msg.data, {
+            finished: msg.finished ?? false,
+          });
           if (msg.reply && resp) {
             if (!isAsyncIterable(resp)) {
               posterProducer(abortCotroller.signal)({
@@ -82,7 +88,11 @@ export const Channel = <T>({
           }
         }
       });
-      return signal;
+      return async function* () {
+        for await (const msg of itr) {
+          yield msg.data;
+        }
+      };
     },
     request: async (
       operation: string,

@@ -1,3 +1,5 @@
+import { Channel } from "../channel/Channels";
+import { EventEmitterChannel } from "../channel/EventEmitterChannel";
 import {
   MqRuntime,
   Payload,
@@ -9,8 +11,10 @@ import {
 } from "./type/MqConnection";
 import { Msg } from "./type/Msg";
 
-export const TsMqRuntime = (): MqRuntime => {
-  const topics = new Map<string, Subscription[]>();
+export const TsMqRuntime = (
+  channel: ReturnType<typeof EventEmitterChannel<Payload | undefined>>
+): MqRuntime => {
+  // const topics = new Map<string, Subscription[]>();
 
   return {
     publish: function (
@@ -18,38 +22,38 @@ export const TsMqRuntime = (): MqRuntime => {
       payload?: Payload,
       options?: PublishOptions
     ): void {
-      throw new Error("Function not implemented.");
+      return channel.postOn(subject, payload, { reply: options?.reply });
     },
     subscribe: function (
       subject: string,
       opts?: SubscriptionOptions
     ): Subscription {
-      if (!topics.has(subject)) {
-        topics.set(subject, []);
-      }
+      const { callback, timeout } = opts || {};
+      channel.listenOn(subject, (msg) => {
+        console.log("subscribe: ", msg);
+        if (msg === undefined) {
+          return;
+        }
+        callback?.({
+          msg: {
+            respond: (data) => {
+              return true;
+            },
+            subject: subject,
+            data: msg,
+          },
+        });
+        return msg;
+      });
+      throw new Error("Function not implemented.");
+      // return channel.requestMany({
+      //   callback: (msg) => {
+      //     console.log("subscribe: ", msg);
+      //     return msg;
+      //   },operation:subject,
 
-      const queue: Msg[] = [
-        { subject, data: new Uint8Array(8), respond: () => false },
-      ];
-      const sub: Subscription = {
-        unsubscribe: function (max?: number): void {
-          throw new Error("unsubscribe not implemented.");
-        },
-        [Symbol.asyncIterator]: async function* (): AsyncIterator<Msg> {
-          while (true) {
-            if (queue.length > 0) {
-              // opts?.callback?.(queue[0]);
-              yield queue.shift()!;
-            } else {
-              await new Promise((resolve) => setTimeout(resolve, 50));
-            }
-          }
-        },
-      };
-
-      topics.get(subject)!.push(sub);
-
-      return sub;
+      // })
+      // return sub;
     },
     request: function (
       subject: string,

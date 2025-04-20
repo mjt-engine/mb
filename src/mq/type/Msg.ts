@@ -41,7 +41,7 @@ export type Msg = {
   /**
    * The message's data (or payload)
    */
-  data: Uint8Array;
+  data: Payload;
   /**
    * Possible headers that may have been set by the server or the publisher.
    */
