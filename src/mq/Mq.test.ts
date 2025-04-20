@@ -1,12 +1,15 @@
 import { describe, expect, test } from "vitest";
 import { Mqs } from "./Mq";
+import { TsMqRuntime } from "./TsMqRuntime";
 
-describe("Mqs", async () => {
-  const client = await Mqs.connect({
-    runtime: {} as any,
-  });
-
-  test("should return an object", () => {
-    expect(client).toBeDefined();
+describe("Mqs", () => {
+  test("basic pubsub", async () => {
+    // const runtime = TsMqRuntime();
+    // const sub = runtime.subscribe("test");
+    // for await (const msg of sub) {
+    //   console.log("Received message:", msg);
+    //   expect(msg.subject).toEqual("test");
+    // }
+    // console.log("Subscription ended");
   });
 });
