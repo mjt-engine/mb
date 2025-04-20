@@ -110,7 +110,12 @@ export const connect = async <
         if (signal?.aborted) {
           return;
         }
-        if (isUndefined(resp.data) || resp.data.byteLength === 0) {
+        if (
+          isUndefined(resp.data) ||
+          (typeof resp.data !== "string"
+            ? resp.data.byteLength === 0
+            : resp.data.length === 0)
+        ) {
           break;
         }
         const responseData = await msgToResponseData({
@@ -141,7 +146,11 @@ export const connect = async <
         timeout: timeoutMs,
         meta,
       });
-      if (isUndefined(resp.data) || resp.data.byteLength === 0) {
+      if (
+        isUndefined(resp.data) || typeof resp.data !== "string"
+          ? resp.data.byteLength === 0
+          : resp.data.length === 0
+      ) {
         return undefined;
       }
       return msgToResponseData({ msg: resp, subject, request, log });
@@ -156,7 +165,8 @@ export const connect = async <
         value: payload,
       } as ValueOrError);
 
-      return runtime.publish(subject as string, msg, {
+      console.log("connect:publish: ", subject);
+      return runtime.publish(subject, msg, {
         meta: headers,
       });
     },

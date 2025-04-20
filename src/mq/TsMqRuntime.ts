@@ -12,10 +12,8 @@ import {
 import { Msg } from "./type/Msg";
 
 export const TsMqRuntime = (
-  channel: ReturnType<typeof EventEmitterChannel<Payload | undefined>>
+  channel: ReturnType<typeof Channel<Payload | undefined>>
 ): MqRuntime => {
-  // const topics = new Map<string, Subscription[]>();
-
   return {
     publish: function (
       subject: string,
@@ -29,45 +27,90 @@ export const TsMqRuntime = (
       opts?: SubscriptionOptions
     ): Subscription {
       const { callback, timeout } = opts || {};
-      channel.listenOn(subject, (msg) => {
-        console.log("subscribe: ", msg);
-        if (msg === undefined) {
-          return;
-        }
-        callback?.({
-          msg: {
-            respond: (data) => {
-              return true;
-            },
-            subject: subject,
-            data: msg,
-          },
-        });
-        return msg;
-      });
-      throw new Error("Function not implemented.");
-      // return channel.requestMany({
-      //   callback: (msg) => {
-      //     console.log("subscribe: ", msg);
-      //     return msg;
-      //   },operation:subject,
+      const abortController = new AbortController();
+      const itr = channel.listenOn(
+        subject,
+        (msg) => {
+          if (msg === undefined) {
+            return;
+          }
 
-      // })
-      // return sub;
+          callback?.({
+            msg: {
+              respond: (data) => {
+                throw new Error("callback respond Function not implemented.");
+              },
+              subject: subject,
+              data: msg,
+            },
+          });
+          return msg;
+        },
+        {
+          signal: abortController.signal,
+        }
+      );
+
+      const sub: Subscription = {
+        unsubscribe: () => {
+          abortController.abort();
+        },
+        [Symbol.asyncIterator]: function (): AsyncIterator<Msg> {
+          const payloadToMsg = async function* () {
+            for await (const data of itr()) {
+              yield {
+                subject,
+                data: data!,
+                respond: function (): boolean {
+                  throw new Error("Function not implemented.");
+                },
+              } satisfies Msg;
+            }
+          };
+          return payloadToMsg();
+        },
+      };
+      return sub;
     },
-    request: function (
+    request: async function (
       subject: string,
       payload?: Payload,
       opts?: Partial<RequestOptions>
-    ): Promise<Msg> {
-      throw new Error("Function not implemented.");
+    ) {
+      const result = await channel.request(subject, payload, {
+        timeOutMs: opts?.timeout,
+      });
+      return {
+        subject: subject,
+        data: result!,
+        respond: (data) => {
+          throw new Error("Function not implemented.");
+        },
+      };
     },
-    requestMany: function (
+    requestMany: async function (
       subject: string,
       payload?: Payload,
       opts?: Partial<RequestManyOptions>
     ): Promise<AsyncIterable<Msg>> {
-      throw new Error("Function not implemented.");
+      const result = (
+        await channel.requestMany({
+          operation: subject,
+          request: payload,
+        })
+      )();
+      const payloadToMsg = async function* () {
+        for await (const data of result) {
+          yield {
+            subject,
+            data: data!,
+            respond: function (): boolean {
+              throw new Error("Function not implemented.");
+            },
+          } satisfies Msg;
+        }
+      };
+      return payloadToMsg();
     },
   };
 };

@@ -3,10 +3,6 @@ type AbortableListener<T> = (
   signal?: AbortSignal
 ) => (callback: (value: T) => void) => AsyncIterable<T>;
 
-const testAsyncIterable = async function* () {
-  yield "test";
-};
-
 export type ChannelMessage<T> = {
   subject: string;
   data: T;
@@ -90,7 +86,13 @@ export const Channel = <T>({
       });
       return async function* () {
         for await (const msg of itr) {
-          yield msg.data;
+          if (
+            typeof subject === "string"
+              ? msg.subject === subject
+              : subject.test(msg.subject)
+          ) {
+            yield msg.data;
+          }
         }
       };
     },
@@ -127,15 +129,15 @@ export const Channel = <T>({
     },
     requestMany: async ({
       operation,
-      requestData,
+      request,
       callback,
       options = {},
     }: {
       operation: string;
-      requestData: T;
-      callback: (responseData: T) => void;
+      request: T;
+      callback?: (responseData: T) => void;
       options?: Partial<{ signal: AbortSignal; timeOutMs: number }>;
-    }): Promise<void> => {
+    }): Promise<() => AsyncIterable<T>> => {
       const { signal, timeOutMs } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
@@ -151,25 +153,27 @@ export const Channel = <T>({
           }, timeOutMs);
         }
 
-        mod.listenOn(
+        const itr = mod.listenOn(
           responseSubject,
           (responseData, meta) => {
             if (responseData !== undefined) {
-              callback(responseData);
+              callback?.(responseData);
             }
             if (meta.finished) {
               clearTimeout(timeoutId!);
-              return resolve();
+              return resolve(itr);
             }
           },
           { signal }
         );
-        mod.postOn(operation, requestData, { reply: responseSubject, signal });
+        mod.postOn(operation, request, { reply: responseSubject, signal });
+        return itr;
       });
     },
   };
   return mod;
 };
+
 function isAsyncIterable<T = unknown>(obj: any): obj is AsyncIterable<T> {
   return obj != null && typeof obj[Symbol.asyncIterator] === "function";
 }

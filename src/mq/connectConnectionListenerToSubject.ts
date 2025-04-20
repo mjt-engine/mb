@@ -54,7 +54,7 @@ export const connectConnectionListenerToSubject = async <
     try {
       const valueOrError = Bytes.msgPackToObject<
         ValueOrError<CM[S]["request"]>
-      >(message.data);
+      >(message.data as Uint8Array);
       const requestHeaders = msgMetaToHeadersRecord(
         message.meta
       ) as CM[S]["headers"];

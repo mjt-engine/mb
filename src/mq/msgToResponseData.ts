@@ -16,7 +16,7 @@ export const msgToResponseData = async ({
   log: (message: unknown, ...extra: unknown[]) => void;
 }) => {
   const responseData = Bytes.msgPackToObject<ValueOrError>(
-    new Uint8Array(msg.data)
+    new Uint8Array(msg.data as Uint8Array)
   );
   if (msg.meta?.hasError) {
     log("Error: msgToResponseData: msg.headers.hasError", {
