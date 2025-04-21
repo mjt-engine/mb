@@ -20,6 +20,7 @@ describe("Mqs", () => {
       subject: "test",
       request: "hello",
     });
-    expect(resp).toEqual(expected);
+    console.log("resp", resp);
+    expect(resp.data).toEqual(expected);
   });
 });

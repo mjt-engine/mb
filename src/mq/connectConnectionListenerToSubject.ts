@@ -1,10 +1,9 @@
 import { Bytes } from "@mjt-engine/byte";
-import { Errors } from "@mjt-engine/error";
+import { ErrorDetail, Errors } from "@mjt-engine/error";
 import { Channel } from "../channel/Channels";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
-import { Msg } from "./type/Msg";
-import { isError, type ValueOrError } from "./type/ValueOrError";
+import { isErrorMsg, Msg } from "./type/Msg";
 
 export const connectConnectionListenerToSubject = async <
   S extends keyof CM,
@@ -17,7 +16,7 @@ export const connectConnectionListenerToSubject = async <
   signal,
 }: {
   subject: string;
-  channel: ReturnType<typeof Channel<Msg>>;
+  channel: ReturnType<typeof Channel<Uint8Array>>;
   connectionListener: ConnectionListener<CM, S>;
   options?: Partial<{
     log: (message: unknown, ...extra: unknown[]) => void;
@@ -27,41 +26,41 @@ export const connectConnectionListenerToSubject = async <
   const { log = () => {} } = options;
   log("connectConnectionListenerToSubject: subject: ", subject);
 
+  type MsgRequest = CM[S]["request"];
   // endless loop
   // transform the raw request message to the result of the connectionListener
-  for await (const message of channel.listenOn(subject, async (rawReqMsg) => {
-    const { data, meta } = rawReqMsg;
+  for await (const message of channel.listenOn(subject, async (channelData) => {
+    const msg = Bytes.msgPackToObject<Msg<MsgRequest>>(channelData);
+    const { data, meta } = msg;
 
-    const valueOrError = Bytes.msgPackToObject<ValueOrError<CM[S]["request"]>>(
-      data as Uint8Array
-    );
-    if (isError(valueOrError)) {
-      console.error("Error in message: ", valueOrError);
+    if (isErrorMsg(msg)) {
+      console.error("Error in message: ", msg);
       throw new Error(
-        "connectConnectionListenerToSubject: Error in request body"
+        `connectConnectionListenerToSubject: Unexpected error in request message: ${msg?.data?.message}`
       );
     }
 
     try {
-      const result = await connectionListener(valueOrError.value, {
+      const result = await connectionListener(data, {
         headers: meta?.headers,
         signal,
       });
-      const responseMsg = Bytes.toMsgPack({
-        value: result,
-      } as ValueOrError);
-      return {
-        data: responseMsg,
-      };
+      return Bytes.toMsgPack({
+        data: result,
+      });
     } catch (error) {
-      const responseMsg = Bytes.toMsgPack({
-        error: Errors.errorToErrorDetail({ error }),
-      } as ValueOrError);
-      return {
-        data: responseMsg,
-      };
+      const errorDetail = Errors.errorToErrorDetail({ error });
+      return Bytes.toMsgPack({
+        data: errorDetail,
+        meta: {
+          hasError: true,
+          code: 500,
+          status: errorDetail.message,
+        },
+      } satisfies Msg<ErrorDetail>);
     }
   })) {
     // we don't want the GC to clean up the channel
+    // TODO stats for the connection-listener?
   }
 };

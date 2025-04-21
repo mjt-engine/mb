@@ -101,9 +101,9 @@ export const Channel = <T>({
     request: async (
       operation: string,
       requestData: T,
-      options: Partial<{ signal: AbortSignal; timeOutMs: number }> = {}
+      options: Partial<{ signal: AbortSignal; timeoutMs: number }> = {}
     ): Promise<T> => {
-      const { signal, timeOutMs } = options;
+      const { signal, timeoutMs } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
         signal?.addEventListener("abort", () => {
@@ -112,10 +112,10 @@ export const Channel = <T>({
 
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-        if (timeOutMs) {
+        if (timeoutMs) {
           timeoutId = setTimeout(() => {
             reject(new Error("Request timed out"));
-          }, timeOutMs);
+          }, timeoutMs);
         }
 
         mod.listenOn(
