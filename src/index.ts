@@ -5,8 +5,13 @@ export * from "./mb/type/ConnectionListener";
 export * from "./mb/type/ConnectionMap";
 export * from "./mb/type/EventListener";
 export * from "./mb/type/EventMap";
+export * from "./mb/type/MbClient";
+export * from "./mb/type/Msg";
+export * from "./mb/type/MsgMeta";
 export * from "./mb/MessageBus";
 
 export * from "./channel/type/ChannelMessage";
+export * from "./channel/type/AbortableListener";
+export * from "./channel/type/AbortablePoster";
 export * from "./channel/Channel";
 export * from "./channel/EmitterChannel";

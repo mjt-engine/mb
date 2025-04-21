@@ -1,11 +1,6 @@
+import { AbortablePoster } from "./type/AbortablePoster";
+import { AbortableListener } from "./type/AbortableListener";
 import { ChannelMessage } from "./type/ChannelMessage";
-
-type AbortablePoster<T> = (signal?: AbortSignal) => (value: T) => void;
-type AbortableListener<T> = (
-  signal?: AbortSignal
-) => (
-  callback?: (value: T) => T | void | Promise<void> | Promise<T>
-) => AsyncIterable<T>;
 
 export const Channel = <T>({
   posterProducer,
