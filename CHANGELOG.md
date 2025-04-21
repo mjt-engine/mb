@@ -2,6 +2,7 @@
 
 
 ## 2025-04-21
+- remove dist from ignore ([55f0e5f](https://github.com/mjt-engine/mb/commit/55f0e5faf89d71a39b051ff5dd9f5916a69f28df)) by Matt Taylor
 - export channel types ([dcd8fb5](https://github.com/mjt-engine/mb/commit/dcd8fb5f943b04b1502cf0e37b687157a6a62e9c)) by Matt Taylor
 - cleaned up API ([6acac5e](https://github.com/mjt-engine/mb/commit/6acac5e3d141080fca35dda560fe5526e442b699)) by Matt Taylor
 - Emitter interface created to ease transition to browser env ([985a9e6](https://github.com/mjt-engine/mb/commit/985a9e6a6816301382b1453c25d17e1e2e841205)) by Matt Taylor
