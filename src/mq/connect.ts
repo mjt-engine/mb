@@ -1,14 +1,16 @@
 import { Bytes } from "@mjt-engine/byte";
 import { isDefined, isUndefined } from "@mjt-engine/object";
+import { Channel } from "../channel/Channels";
 import { connectConnectionListenerToSubject } from "./connectConnectionListenerToSubject";
 import { msgToResponseData } from "./msgToResponseData";
 import { recordToMsgMeta } from "./recordToMsgMeta";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import type { EventMap } from "./type/EventMap";
-import { MqRuntime } from "./type/MqConnection";
+import { Msg } from "./type/Msg";
 import type { PartialSubject } from "./type/PartialSubject";
 import type { ValueOrError } from "./type/ValueOrError";
+import { Payload } from "./type/MqConnection";
 
 export type MqClient<CM extends ConnectionMap> = {
   requestMany: <S extends keyof CM>(props: {
@@ -32,17 +34,14 @@ export type MqClient<CM extends ConnectionMap> = {
   }) => Promise<void>;
 };
 
-export const connect = async <
-  CM extends ConnectionMap,
-  E extends Record<string, string> = Record<string, string>
->({
-  runtime,
+export const connect = async <CM extends ConnectionMap>({
+  channel,
   subscribers = {},
   options = {},
   signal,
 }: {
-  runtime: MqRuntime;
-  subscribers?: Partial<{ [k in keyof CM]: ConnectionListener<CM, k, E> }>;
+  channel: ReturnType<typeof Channel<Msg>>;
+  subscribers?: Partial<{ [k in keyof CM]: ConnectionListener<CM, k> }>;
   signal?: AbortSignal;
   options?: Partial<{
     log: (message: unknown, ...extra: unknown[]) => void;
@@ -57,9 +56,9 @@ export const connect = async <
       continue;
     }
     connectConnectionListenerToSubject({
-      connection: runtime,
+      channel,
       subject,
-      listener,
+      connectionListener: listener,
       options,
       signal,
     });
@@ -82,29 +81,33 @@ export const connect = async <
         onResponse,
         signal,
       } = props;
-      const requestMsg = Bytes.toMsgPack({
+      const requestData = Bytes.toMsgPack({
         value: request,
       } as ValueOrError);
       const { timeoutMs = 60 * 1000 } = options;
 
-      const hs = recordToMsgMeta(headers);
+      const meta = recordToMsgMeta(headers);
       if (isDefined(signal)) {
         const abortSubject = `abort.${Date.now()}.${crypto.randomUUID()}`;
-        hs["headers"] = hs["headers"] || {};
-        hs.headers["abort-subject"] = abortSubject;
+        meta["headers"] = meta["headers"] || {};
+        meta.headers["abort-subject"] = abortSubject;
         signal.addEventListener("abort", () => {
-          runtime.publish(abortSubject);
+          channel.postOn(abortSubject, {
+            data: "abort",
+          });
         });
       }
 
-      const iterable = await runtime.requestMany(
-        subject as string,
-        requestMsg,
-        {
-          maxWait: timeoutMs,
-          meta: hs,
-        }
-      );
+      const iterable = await channel.requestMany({
+        operation: subject as string,
+        request: {
+          data: requestData,
+          meta,
+        },
+        options: {
+          timeOutMs: timeoutMs,
+        },
+      });
       for await (const resp of iterable) {
         iterable;
         if (signal?.aborted) {
@@ -142,10 +145,13 @@ export const connect = async <
 
       const meta = recordToMsgMeta(headers);
 
-      const resp = await runtime.request(subject as string, requestMsg, {
-        timeout: timeoutMs,
-        meta,
-      });
+      const resp = await channel.request(
+        subject as string,
+        { data: requestMsg, meta },
+        {
+          timeOutMs: timeoutMs,
+        }
+      );
       if (
         isUndefined(resp.data) || typeof resp.data !== "string"
           ? resp.data.byteLength === 0
@@ -161,13 +167,14 @@ export const connect = async <
       headers?: Record<keyof CM[S]["headers"], string>;
     }): Promise<void> => {
       const { payload, subject, headers } = props;
-      const msg = Bytes.toMsgPack({
+      const data = Bytes.toMsgPack({
         value: payload,
       } as ValueOrError);
 
       console.log("connect:publish: ", subject);
-      return runtime.publish(subject, msg, {
-        meta: headers,
+      return channel.postOn(subject, {
+        data: data,
+        meta: { headers },
       });
     },
   };

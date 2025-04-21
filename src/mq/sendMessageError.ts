@@ -9,7 +9,7 @@ export const sendMessageError =
   async (error: unknown) => {
     const errorDetail = await Errors.errorToErrorDetail({
       error,
-      extra: [message.subject],
+      extra: [message],
     });
     send(Bytes.toMsgPack({ error: errorDetail }), {
       hasError: true,

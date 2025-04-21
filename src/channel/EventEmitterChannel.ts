@@ -19,13 +19,12 @@ export const EventEmitterChannel = <T>() => {
         const iterState = {
           resolve: undefined as ((value?: unknown) => void) | undefined,
         };
-        const listener = (data: ChannelMessage<T>) => {
+        const listener = async (data: ChannelMessage<T>) => {
           if (signal?.aborted) {
             return;
           }
-          const resp = callback?.(data);
+          const resp = await callback?.(data);
           const queueData = isDefined(resp) ? resp : data;
-
           messageQueue.push(queueData!);
           iterState.resolve?.();
         };

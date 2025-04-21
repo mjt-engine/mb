@@ -1,8 +1,7 @@
 import { Bytes } from "@mjt-engine/byte";
-import type { ValueOrError } from "./type/ValueOrError";
-import { isDefined } from "@mjt-engine/object";
 import { Errors } from "@mjt-engine/error";
 import { Msg } from "./type/Msg";
+import { isError, type ValueOrError } from "./type/ValueOrError";
 
 export const msgToResponseData = async ({
   msg,
@@ -30,7 +29,7 @@ export const msgToResponseData = async ({
       }),
     });
   }
-  if (isDefined(responseData.error)) {
+  if (isError(responseData)) {
     log("Error: msgToResponseData: responseData.error", responseData.error);
     throw new Error(`Error on subject: ${subject as string}`, {
       cause: await Errors.errorToErrorDetail({

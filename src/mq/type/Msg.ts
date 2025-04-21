@@ -28,16 +28,12 @@ export type Msg = {
   /**
    * The subject the message was sent to
    */
-  subject: string;
-  /**
-   * The subscription ID where the message was dispatched.
-   */
-  // sid: number;
+  // subject: string;
   /**
    * A possible subject where the recipient may publish a reply (in the cases
    * where the message represents a request).
    */
-  reply?: string;
+  // reply?: string;
   /**
    * The message's data (or payload)
    */
@@ -46,13 +42,4 @@ export type Msg = {
    * Possible headers that may have been set by the server or the publisher.
    */
   meta?: MsgMeta;
-
-  /**
-   * Convenience to publish a response to the {@link reply} subject in the
-   * message - this is the same as doing `nc.publish(msg.reply, ...)`.
-   * @param payload
-   * @param opts
-   * @deprecated
-   */
-  respond(payload?: Payload, opts?: PublishOptions): boolean;
 };

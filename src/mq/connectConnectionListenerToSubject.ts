@@ -1,128 +1,67 @@
 import { Bytes } from "@mjt-engine/byte";
 import { Errors } from "@mjt-engine/error";
-import { isDefined, isUndefined } from "@mjt-engine/object";
-import { msgMetaToHeadersRecord } from "./msgMetaToHeadersRecord";
-import { sendMessageError } from "./sendMessageError";
+import { Channel } from "../channel/Channels";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
-import { MqRuntime } from "./type/MqConnection";
-import { MsgMeta } from "./type/Msg";
-import type { ValueOrError } from "./type/ValueOrError";
+import { Msg } from "./type/Msg";
+import { isError, type ValueOrError } from "./type/ValueOrError";
 
 export const connectConnectionListenerToSubject = async <
   S extends keyof CM,
-  CM extends ConnectionMap,
-  E extends Record<string, string>
+  CM extends ConnectionMap
 >({
-  connection,
+  channel,
   subject,
-  listener,
+  connectionListener,
   options = {},
-  env = {},
   signal,
 }: {
   subject: string;
-  connection: MqRuntime;
-  listener: ConnectionListener<CM, S, E>;
+  channel: ReturnType<typeof Channel<Msg>>;
+  connectionListener: ConnectionListener<CM, S>;
   options?: Partial<{
-    maxMessages?: number;
-    timeout?: number;
     log: (message: unknown, ...extra: unknown[]) => void;
   }>;
-  env?: Partial<E>;
   signal?: AbortSignal;
 }) => {
-  const { log = () => {}, maxMessages, timeout } = options;
+  const { log = () => {} } = options;
   log("connectConnectionListenerToSubject: subject: ", subject);
-  const subscription = connection.subscribe(subject, {
-    max: maxMessages,
-    timeout,
-  });
 
-  if (isDefined(signal)) {
-    if (signal.aborted) {
-      subscription.unsubscribe();
-      throw new Error("Signal already in aborted state");
+  // endless loop
+  // transform the raw request message to the result of the connectionListener
+  for await (const message of channel.listenOn(subject, async (rawReqMsg) => {
+    const { data, meta } = rawReqMsg;
+
+    const valueOrError = Bytes.msgPackToObject<ValueOrError<CM[S]["request"]>>(
+      data as Uint8Array
+    );
+    if (isError(valueOrError)) {
+      console.error("Error in message: ", valueOrError);
+      throw new Error(
+        "connectConnectionListenerToSubject: Error in request body"
+      );
     }
-    signal.addEventListener("abort", () => {
-      subscription.unsubscribe();
-    });
-  }
 
-  for await (const message of subscription) {
-    const send = (response?: CM[S]["response"], meta: MsgMeta = {}) => {
-      if (isUndefined(response)) {
-        return;
-      }
-
-      if (isDefined(message.reply)) {
-        const responseMsg = Bytes.toMsgPack({
-          value: response,
-        } as ValueOrError);
-        console.log(`sending to: ${message.reply}`);
-        connection.publish(message.reply, responseMsg, {
-          meta,
-        });
-      }
-    };
     try {
-      const valueOrError = Bytes.msgPackToObject<
-        ValueOrError<CM[S]["request"]>
-      >(message.data as Uint8Array);
-      const requestHeaders = msgMetaToHeadersRecord(
-        message.meta
-      ) as CM[S]["headers"];
-      const abortController = new AbortController();
-      if (isDefined(requestHeaders?.["abort-subject"])) {
-        const abortSubject = requestHeaders["abort-subject"];
-        const abortSubscription = connection.subscribe(abortSubject, {
-          max: 1,
-          callback: () => {
-            abortController.abort();
-            abortSubscription.unsubscribe();
-            message.respond(); // Acknowledge the abort
-          },
-        });
-      }
-
-      const sendError = async (error: unknown, meta: MsgMeta = {}) =>
-        sendMessageError(send)(message, meta)(error);
-
-      const unsubscribe = (maxMessages?: number) =>
-        subscription.unsubscribe(maxMessages);
-
-      if (isDefined(valueOrError.error)) {
-        log(
-          "Error: connectListenerToSubscription: valueOrError.error",
-          valueOrError.error
-        );
-        continue;
-      }
-      console.log(
-        `calling listner for ${message.subject} that has reply ${message.reply}`
-      );
-
-      const result = await listener({
-        detail: valueOrError.value,
-        headers: requestHeaders,
-        env,
-        signal: abortController.signal,
-        send,
-        sendError,
-        unsubscribe,
+      const result = await connectionListener(valueOrError.value, {
+        headers: meta?.headers,
+        signal,
       });
-      console.log("!!!!!!!!!!!!result", result);
-      send(result);
-      console.log(
-        `SENT '${result}' !!!!!!!!!!!!result maybe to:${message.reply}`
-      );
+      const responseMsg = Bytes.toMsgPack({
+        value: result,
+      } as ValueOrError);
+      return {
+        data: responseMsg,
+      };
     } catch (error) {
-      const errorDetail = await Errors.errorToErrorDetail({
-        error,
-        extra: [message.subject],
-      });
-      log(errorDetail);
-      sendMessageError(send)(message)(error);
+      const responseMsg = Bytes.toMsgPack({
+        error: Errors.errorToErrorDetail({ error }),
+      } as ValueOrError);
+      return {
+        data: responseMsg,
+      };
     }
+  })) {
+    // we don't want the GC to clean up the channel
   }
 };
