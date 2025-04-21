@@ -3,7 +3,6 @@ src/html/images/
 src/html/fonts/
 certs
 sync
-dist
 __snapshots__
 build
 vendor
