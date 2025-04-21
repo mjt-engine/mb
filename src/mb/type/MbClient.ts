@@ -3,7 +3,7 @@ import type { EventMap } from "./EventMap";
 import { Msg } from "./Msg";
 import type { PartialSubject } from "./PartialSubject";
 
-export type MqClient<CM extends ConnectionMap> = {
+export type MbClient<CM extends ConnectionMap> = {
   requestMany: <S extends keyof CM>(props: {
     subject: S;
     request: CM[S]["request"];

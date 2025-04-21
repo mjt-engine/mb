@@ -1,16 +1,16 @@
 import { Bytes } from "@mjt-engine/byte";
 import { isUndefined } from "@mjt-engine/object";
-import { Channel } from "../channel/Channels";
+import { Channel } from "../channel/Channel";
 import { connectConnectionListenerToSubject } from "./connectConnectionListenerToSubject";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import type { EventMap } from "./type/EventMap";
-import { MqClient } from "./type/MqClient";
+import { MbClient } from "./type/MbClient";
 import { Msg } from "./type/Msg";
 import type { PartialSubject } from "./type/PartialSubject";
 import type { ValueOrError } from "./type/ValueOrError";
 
-export const connect = async <CM extends ConnectionMap>({
+export const MessageBus = async <CM extends ConnectionMap>({
   channel,
   subscribers = {},
   options = {},
@@ -23,18 +23,18 @@ export const connect = async <CM extends ConnectionMap>({
     log: (message: unknown, ...extra: unknown[]) => void;
     defaultTimeoutMs: number;
   }>;
-}): Promise<MqClient<CM>> => {
+}): Promise<MbClient<CM>> => {
   const { log = () => {}, defaultTimeoutMs = 60 * 1000 } = options;
   const entries = Object.entries(subscribers);
   log("connect: subscribers: ", entries);
-  for (const [subject, listener] of entries) {
-    if (isUndefined(listener)) {
+  for (const [subject, connectionListener] of entries) {
+    if (isUndefined(connectionListener)) {
       continue;
     }
     connectConnectionListenerToSubject({
       channel,
       subject,
-      connectionListener: listener,
+      connectionListener,
       options,
       signal,
     });
@@ -77,13 +77,13 @@ export const connect = async <CM extends ConnectionMap>({
       //   });
       // }
 
-      const channelItr = await channel.requestMany({
-        operation: subject as string,
-        request: requestData,
-        options: {
-          timeOutMs: timeoutMs,
-        },
-      });
+      const channelItr = await channel.requestMany(
+        subject as string,
+        requestData,
+        {
+          timeoutMs,
+        }
+      );
       for await (const respChannelData of channelItr) {
         if (signal?.aborted) {
           return;

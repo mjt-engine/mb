@@ -1,4 +1,4 @@
-import { Bytes } from "@mjt-engine/byte";
+import { ChannelMessage } from "./type/ChannelMessage";
 
 type AbortablePoster<T> = (signal?: AbortSignal) => (value: T) => void;
 type AbortableListener<T> = (
@@ -6,13 +6,6 @@ type AbortableListener<T> = (
 ) => (
   callback?: (value: T) => T | void | Promise<void> | Promise<T>
 ) => AsyncIterable<T>;
-
-export type ChannelMessage<T> = {
-  subject: string;
-  data: T;
-  reply?: string;
-  finished?: boolean;
-};
 
 export const Channel = <T>({
   posterProducer,
@@ -35,16 +28,16 @@ export const Channel = <T>({
     },
     listenOn: function (
       subject: string | RegExp,
-      callback?: (
-        data: T,
-        meta: { finished: boolean }
-      ) => T | void | AsyncIterable<T> | Promise<void> | Promise<T>,
       options: Partial<{
+        callback?: (
+          data: T,
+          meta: { finished: boolean }
+        ) => T | void | AsyncIterable<T> | Promise<void> | Promise<T>;
         signal?: AbortSignal;
         once?: boolean;
       }> = {}
     ) {
-      const { signal, once } = options;
+      const { signal, once, callback } = options;
       const abortCotroller = new AbortController();
       signal?.addEventListener("abort", () => {
         abortCotroller.abort();
@@ -118,29 +111,27 @@ export const Channel = <T>({
           }, timeoutMs);
         }
 
-        mod.listenOn(
-          responseSubject,
-          (responseData) => {
+        mod.listenOn(responseSubject, {
+          callback: (responseData) => {
             clearTimeout(timeoutId!);
             resolve(responseData);
           },
-          { signal, once: true }
-        );
+          signal,
+          once: true,
+        });
         mod.postOn(operation, requestData, { reply: responseSubject, signal });
       });
     },
-    requestMany: async ({
-      operation,
-      request,
-      callback,
-      options = {},
-    }: {
-      operation: string;
-      request: T;
-      callback?: (responseData: T) => void;
-      options?: Partial<{ signal: AbortSignal; timeOutMs: number }>;
-    }): Promise<AsyncIterable<T>> => {
-      const { signal, timeOutMs } = options;
+    requestMany: async (
+      operation: string,
+      request: T,
+      options: Partial<{
+        signal: AbortSignal;
+        timeoutMs: number;
+        callback?: (responseData: T) => void;
+      }> = {}
+    ): Promise<AsyncIterable<T>> => {
+      const { signal, timeoutMs, callback } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
         signal?.addEventListener("abort", () => {
@@ -149,15 +140,14 @@ export const Channel = <T>({
 
         let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-        if (timeOutMs) {
+        if (timeoutMs) {
           timeoutId = setTimeout(() => {
             reject(new Error("Request timed out"));
-          }, timeOutMs);
+          }, timeoutMs);
         }
 
-        const itr = mod.listenOn(
-          responseSubject,
-          (responseData, meta) => {
+        const itr = mod.listenOn(responseSubject, {
+          callback: (responseData, meta) => {
             if (responseData !== undefined) {
               callback?.(responseData);
             }
@@ -166,8 +156,9 @@ export const Channel = <T>({
               return resolve(itr);
             }
           },
-          { signal }
-        );
+
+          signal,
+        });
         mod.postOn(operation, request, { reply: responseSubject, signal });
         return itr;
       });

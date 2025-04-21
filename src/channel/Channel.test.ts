@@ -6,8 +6,10 @@ describe("EventEmmitterChannel", () => {
   test("listen/post", async () => {
     const elc = EmitterChannel<string>(new EventEmitter());
     const result = await new Promise((resolve) => {
-      elc.listenOn("test", (data) => {
-        resolve("got:" + data);
+      elc.listenOn("test", {
+        callback: (data) => {
+          resolve("got:" + data);
+        },
       });
       elc.postOn("test", "Hello, world!");
     });
@@ -16,8 +18,10 @@ describe("EventEmmitterChannel", () => {
   test("regex listen/post", async () => {
     const elc = EmitterChannel<string>(new EventEmitter());
     const result = await new Promise((resolve) => {
-      elc.listenOn(/t.*/, (data) => {
-        resolve("got:" + data);
+      elc.listenOn(/t.*/, {
+        callback: (data) => {
+          resolve("got:" + data);
+        },
       });
       elc.postOn("test", "Hello, world!");
     });
@@ -26,8 +30,10 @@ describe("EventEmmitterChannel", () => {
   test("async itr listen/post", async () => {
     const elc = EmitterChannel<string>(new EventEmitter());
     const promise = new Promise(async (resolve) => {
-      for await (const data of elc.listenOn("test", (d, meta) => {
-        return `transformed:` + d;
+      for await (const data of elc.listenOn("test", {
+        callback: (d, meta) => {
+          return `transformed:` + d;
+        },
       })) {
         if (data === "3") {
           resolve("got:" + data);
@@ -44,23 +50,25 @@ describe("EventEmmitterChannel", () => {
   });
   test("req/rep", async () => {
     const elc = EmitterChannel<string>(new EventEmitter());
-    elc.listenOn("test", (data) => {
-      return `Hello, ${data}`;
+    elc.listenOn("test", {
+      callback: (data) => {
+        return `Hello, ${data}`;
+      },
     });
     const resp = await elc.request("test", "123");
     expect(resp).toBe("Hello, 123");
   });
   test("req/rep many", async () => {
     const elc = EmitterChannel<string>(new EventEmitter());
-    elc.listenOn("test", async function* (data) {
-      yield `${data} 1`;
-      yield `${data} 2`;
-      yield `${data} 3`;
+    elc.listenOn("test", {
+      callback: async function* (data) {
+        yield `${data} 1`;
+        yield `${data} 2`;
+        yield `${data} 3`;
+      },
     });
     const results: string[] = [];
-    await elc.requestMany({
-      operation: "test",
-      request: "123",
+    await elc.requestMany("test", "123", {
       callback: (data) => {
         results.push(data);
       },
@@ -69,13 +77,13 @@ describe("EventEmmitterChannel", () => {
   });
   test("req/rep many on non-iter", async () => {
     const elc = EmitterChannel<string>(new EventEmitter());
-    elc.listenOn("test", (data) => {
-      return `${data} 1`;
+    elc.listenOn("test", {
+      callback: (data) => {
+        return `${data} 1`;
+      },
     });
     const results: string[] = [];
-    await elc.requestMany({
-      operation: "test",
-      request: "123",
+    await elc.requestMany("test", "123", {
       callback: (data) => {
         console.log("callback", data);
         results.push(data);

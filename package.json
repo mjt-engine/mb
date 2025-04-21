@@ -1,8 +1,8 @@
 {
-  "name": "@mjt-engine/mq",
+  "name": "@mjt-engine/mb",
   "version": "1.0.0",
   "sideEffects": false,
-  "description": "MJT Rogue UI",
+  "description": "Message Bus module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
