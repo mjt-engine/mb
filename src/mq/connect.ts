@@ -6,7 +6,7 @@ import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import type { EventMap } from "./type/EventMap";
 import { MqClient } from "./type/MqClient";
-import { isErrorMsg, Msg } from "./type/Msg";
+import { Msg } from "./type/Msg";
 import type { PartialSubject } from "./type/PartialSubject";
 import type { ValueOrError } from "./type/ValueOrError";
 
@@ -63,12 +63,8 @@ export const connect = async <CM extends ConnectionMap>({
         data: request,
         meta: { headers },
       } satisfies Msg<MsgRequest>);
-      // const requestData = Bytes.toMsgPack({
-      //   value: request,
-      // } as ValueOrError);
       const { timeoutMs = 60 * 1000 } = options;
 
-      // const meta = recordToMsgMeta(headers);
       // TODO: add abort signal to meta
       // if (isDefined(signal)) {
       //   const abortSubject = `abort.${Date.now()}.${crypto.randomUUID()}`;
@@ -84,10 +80,6 @@ export const connect = async <CM extends ConnectionMap>({
       const channelItr = await channel.requestMany({
         operation: subject as string,
         request: requestData,
-        // request: {
-        //   data: requestData,
-        //   meta,
-        // },
         options: {
           timeOutMs: timeoutMs,
         },
@@ -141,5 +133,5 @@ export const connect = async <CM extends ConnectionMap>({
 
       return channel.postOn(subject, channelData);
     },
-  } satisfies MqClient<CM>;
+  };
 };
