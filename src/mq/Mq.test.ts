@@ -1,12 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { EventEmitterChannel } from "../channel/EventEmitterChannel";
+import { EmitterChannel } from "../channel/EmitterChannel";
 import { connect } from "./connect";
+import EventEmitter from "node:events";
 
 describe("Mqs", () => {
   test("basic pubsub", async () => {
     const expected = "hello world";
     const connection = await connect({
-      channel: EventEmitterChannel(),
+      channel: EmitterChannel(new EventEmitter()),
       options: {
         log: console.log,
       },

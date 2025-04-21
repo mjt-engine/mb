@@ -1,16 +1,26 @@
-import { EventEmitter } from "events";
-import { Channel, ChannelMessage } from "./Channels";
 import { isDefined } from "@mjt-engine/object";
+import { Channel, ChannelMessage } from "./Channels";
 
-export const EventEmitterChannel = <T>() => {
-  const bus = new EventEmitter();
+export type Emitter<T = unknown> = {
+  emit: (event: string, ...args: T[]) => void;
+  on: (event: string, listener: (...args: T[]) => void | Promise<void>) => void;
+  off: (
+    event: string,
+    listener: (...args: T[]) => void | Promise<void>
+  ) => void;
+};
+
+export const EmitterChannel = <T>(
+  bus: Emitter<ChannelMessage<T>>,
+  eventName = "channel_message"
+) => {
   return Channel<T>({
     posterProducer: (signal) => {
       return (msg) => {
         if (signal?.aborted) {
           return;
         }
-        bus.emit("message", msg);
+        bus.emit(eventName, msg);
       };
     },
     listenerProducer: (signal) => {
@@ -29,9 +39,9 @@ export const EventEmitterChannel = <T>() => {
           iterState.resolve?.();
         };
         signal?.addEventListener("abort", () => {
-          bus.off("message", listener);
+          bus.off(eventName, listener);
         });
-        bus.on("message", listener);
+        bus.on(eventName, listener);
 
         return {
           [Symbol.asyncIterator]: async function* () {
