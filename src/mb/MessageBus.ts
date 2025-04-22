@@ -41,29 +41,23 @@ export const MessageBus = async <CM extends ConnectionMap>({
   }
 
   return {
-    requestMany: async <S extends keyof CM>(props: {
-      subject: S;
-      request: CM[S]["request"];
-      headers?: Record<keyof CM[S]["headers"], string>;
-      options?: Partial<{ timeoutMs: number }>;
-      onResponse: (response: Msg<CM[S]["response"]>) => void | Promise<void>;
-      signal?: AbortSignal;
-    }) => {
-      const {
-        request,
-        subject,
-        headers,
-        options = {},
-        onResponse,
-        signal,
-      } = props;
+    requestMany: async <S extends keyof CM>(
+      subject: S,
+      request: CM[S]["request"],
+      options: Partial<{
+        timeoutMs: number;
+        headers?: Record<keyof CM[S]["headers"], string>;
+        callback: (response: Msg<CM[S]["response"]>) => void | Promise<void>;
+        signal?: AbortSignal;
+      }> = {}
+    ) => {
       type MsgRequest = CM[S]["request"];
       type MsgResponse = CM[S]["response"];
+      const { timeoutMs = 60 * 1000, headers, callback } = options;
       const requestData = Bytes.toMsgPack({
         data: request,
         meta: { headers },
       } satisfies Msg<MsgRequest>);
-      const { timeoutMs = 60 * 1000 } = options;
 
       // TODO: add abort signal to meta
       // if (isDefined(signal)) {
@@ -90,20 +84,22 @@ export const MessageBus = async <CM extends ConnectionMap>({
         }
         const responseObject =
           Bytes.msgPackToObject<Msg<MsgResponse>>(respChannelData);
-        await onResponse(responseObject);
+        await callback?.(responseObject);
       }
     },
 
-    request: async <S extends keyof CM>(props: {
-      subject: S;
-      request: CM[S]["request"];
-      headers?: Record<keyof CM[S]["headers"], string>;
-      options?: Partial<{ timeoutMs: number }>;
-    }): Promise<Msg<CM[S]["response"]>> => {
+    request: async <S extends keyof CM>(
+      subject: S,
+      request: CM[S]["request"],
+      options: Partial<{
+        timeoutMs: number;
+        headers?: Record<keyof CM[S]["headers"], string>;
+      }> = {}
+    ): Promise<Msg<CM[S]["response"]>> => {
       type MsgRequest = CM[S]["request"];
       type MsgResponse = CM[S]["response"];
-      const { request, subject, headers, options = {} } = props;
-      const { timeoutMs = defaultTimeoutMs } = options;
+      // const { request, subject, headers, options = {} } = props;
+      const { timeoutMs = defaultTimeoutMs, headers } = options;
 
       const requestData = Bytes.toMsgPack({
         data: request,
@@ -116,13 +112,15 @@ export const MessageBus = async <CM extends ConnectionMap>({
 
       return Bytes.msgPackToObject<Msg<MsgResponse>>(resp);
     },
-    publish: async <S extends PartialSubject, EM extends EventMap<S>>(props: {
-      subject: S;
-      payload: EM[S];
-      headers?: Record<keyof CM[S]["headers"], string>;
-    }): Promise<void> => {
+    publish: async <S extends PartialSubject, EM extends EventMap<S>>(
+      subject: S,
+      payload: EM[S],
+      options: Partial<{
+        headers?: Record<keyof CM[S]["headers"], string>;
+      }> = {}
+    ): Promise<void> => {
       type MsgPayload = EM[S];
-      const { payload, subject, headers } = props;
+      const { headers } = options;
       const data = Bytes.toMsgPack({
         value: payload,
       } as ValueOrError);

@@ -17,10 +17,7 @@ describe("Mbs", () => {
         },
       },
     });
-    const resp = await connection.request({
-      subject: "test",
-      request: "hello",
-    });
+    const resp = await connection.request("test", "hello");
     console.log("resp", resp);
     expect(resp.data).toEqual(expected);
   });
