@@ -1,6 +1,9 @@
 # Changelog
 
 
+## 2025-04-22
+- added subscribe test ([381f9dc](https://github.com/mjt-engine/mb/commit/381f9dc92343ea097fd0bc11458182d40beeac7a)) by Matt Taylor
+
 ## 2025-04-21
 - added subscribe method to MessageBus ([d08830d](https://github.com/mjt-engine/mb/commit/d08830de419a313b50859a452a1d8006088b92cf)) by Matt Taylor
 - cleaned up ergonomics of MB API ([5eb05de](https://github.com/mjt-engine/mb/commit/5eb05de04029cc60f6c02b15e05ef0c880caff85)) by Matt Taylor
