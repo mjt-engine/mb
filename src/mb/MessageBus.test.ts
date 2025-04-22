@@ -6,7 +6,7 @@ import EventEmitter from "node:events";
 describe("Mbs", () => {
   test("basic pubsub", async () => {
     const expected = "hello world";
-    const connection = await MessageBus({
+    const bus = await MessageBus({
       channel: EmitterChannel(new EventEmitter()),
       options: {
         log: console.log,
@@ -17,7 +17,22 @@ describe("Mbs", () => {
         },
       },
     });
-    const resp = await connection.request("test", "hello");
+    const resp = await bus.request("test", "hello");
+    console.log("resp", resp);
+    expect(resp.data).toEqual(expected);
+  });
+  test("subscribe", async () => {
+    const expected = "hello world";
+    const bus = await MessageBus({
+      channel: EmitterChannel(new EventEmitter()),
+      options: {
+        log: console.log,
+      },
+    });
+    bus.subscribe("test-sub", (request) => {
+      return `${request} world`;
+    });
+    const resp = await bus.request("test-sub", "hello");
     console.log("resp", resp);
     expect(resp.data).toEqual(expected);
   });
