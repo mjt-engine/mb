@@ -102,7 +102,7 @@ export const Channel = <T>({
 
         if (timeoutMs) {
           timeoutId = setTimeout(() => {
-            reject(new Error("Request timed out"));
+            reject(new Error(`Request timed out for ${operation}`));
           }, timeoutMs);
         }
 
@@ -137,7 +137,7 @@ export const Channel = <T>({
 
         if (timeoutMs) {
           timeoutId = setTimeout(() => {
-            reject(new Error("Request timed out"));
+            reject(new Error(`Request timed out for ${operation}`));
           }, timeoutMs);
         }
 
