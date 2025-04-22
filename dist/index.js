@@ -1527,7 +1527,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
         });
         let b;
         y && (b = setTimeout(() => {
-          S(new Error("Request timed out"));
+          S(new Error(`Request timed out for ${n}`));
         }, y)), r.listenOn(w, {
           callback: (I) => {
             clearTimeout(b), A(I);
@@ -1545,7 +1545,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
         });
         let I;
         y && (I = setTimeout(() => {
-          b(new Error("Request timed out"));
+          b(new Error(`Request timed out for ${n}`));
         }, y));
         const L = r.listenOn(A, {
           callback: (q, N) => {
