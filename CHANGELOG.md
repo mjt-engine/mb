@@ -2,6 +2,7 @@
 
 
 ## 2025-04-21
+- added subscribe method to MessageBus ([d08830d](https://github.com/mjt-engine/mb/commit/d08830de419a313b50859a452a1d8006088b92cf)) by Matt Taylor
 - cleaned up ergonomics of MB API ([5eb05de](https://github.com/mjt-engine/mb/commit/5eb05de04029cc60f6c02b15e05ef0c880caff85)) by Matt Taylor
 - remove dist from ignore ([55f0e5f](https://github.com/mjt-engine/mb/commit/55f0e5faf89d71a39b051ff5dd9f5916a69f28df)) by Matt Taylor
 - export channel types ([dcd8fb5](https://github.com/mjt-engine/mb/commit/dcd8fb5f943b04b1502cf0e37b687157a6a62e9c)) by Matt Taylor
