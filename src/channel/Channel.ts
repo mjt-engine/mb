@@ -46,6 +46,9 @@ export const Channel = <T>({
             ? msg.subject === subject
             : subject.test(msg.subject)
         ) {
+          if (once) {
+            abortCotroller.abort();
+          }
           const resp = await callback?.(msg.data, {
             finished: msg.finished ?? false,
           });
@@ -72,9 +75,6 @@ export const Channel = <T>({
                   finished: true,
                 });
               })();
-            }
-            if (once) {
-              abortCotroller.abort();
             }
           }
           if (resp && !isAsyncIterable(resp)) {
