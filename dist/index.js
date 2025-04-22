@@ -1493,6 +1493,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
       });
       const A = t(w.signal)(async (p) => {
         if (typeof n == "string" ? p.subject === n : n.test(p.subject)) {
+          l && w.abort();
           const b = await h?.(p.data, {
             finished: p.finished ?? !1
           });
@@ -1511,7 +1512,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
             subject: p.reply,
             data: b,
             finished: !0
-          }), l && w.abort()), b && !et(b))
+          })), b && !et(b))
             return { ...p, data: b };
         }
         return p;
