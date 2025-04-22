@@ -34,6 +34,9 @@ export const Channel = <T>({
     ) {
       const { signal, once, callback } = options;
       const abortCotroller = new AbortController();
+      if (signal?.aborted) {
+        throw new Error(`listenOn: Signal is already aborted for ${subject}`);
+      }
       signal?.addEventListener("abort", () => {
         abortCotroller.abort();
       });
@@ -94,6 +97,11 @@ export const Channel = <T>({
       const { signal, timeoutMs } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
+        if (signal?.aborted) {
+          reject(
+            new Error(`request: Signal is already aborted for ${operation}`)
+          );
+        }
         signal?.addEventListener("abort", () => {
           reject(new Error("Request aborted"));
         });
@@ -102,7 +110,11 @@ export const Channel = <T>({
 
         if (timeoutMs) {
           timeoutId = setTimeout(() => {
-            reject(new Error(`Request timed out for ${operation}`));
+            reject(
+              new Error(
+                `request: Request timed out after ${timeoutMs}ms for ${operation}`
+              )
+            );
           }, timeoutMs);
         }
 
@@ -129,6 +141,11 @@ export const Channel = <T>({
       const { signal, timeoutMs, callback } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
+        if (signal?.aborted) {
+          reject(
+            new Error(`requestMany: Signal is already aborted for ${operation}`)
+          );
+        }
         signal?.addEventListener("abort", () => {
           reject(new Error("Request aborted"));
         });
@@ -137,7 +154,11 @@ export const Channel = <T>({
 
         if (timeoutMs) {
           timeoutId = setTimeout(() => {
-            reject(new Error(`Request timed out for ${operation}`));
+            reject(
+              new Error(
+                `requestMany: Request timed out after ${timeoutMs}ms for ${operation}`
+              )
+            );
           }, timeoutMs);
         }
 
