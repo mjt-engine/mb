@@ -4,27 +4,23 @@ import { Channel } from "../channel/Channel";
 import { connectConnectionListenerToSubject } from "./connectConnectionListenerToSubject";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
-import type { EventMap } from "./type/EventMap";
 import { MbClient } from "./type/MbClient";
 import { Msg } from "./type/Msg";
-import type { PartialSubject } from "./type/PartialSubject";
-import type { ValueOrError } from "./type/ValueOrError";
 
 export const MessageBus = async <CM extends ConnectionMap>({
   channel,
   subscribers = {},
   options = {},
-  signal,
 }: {
   channel: ReturnType<typeof Channel<Uint8Array>>;
   subscribers?: Partial<{ [k in keyof CM]: ConnectionListener<CM, k> }>;
-  signal?: AbortSignal;
   options?: Partial<{
+    signal?: AbortSignal;
     log: (message: unknown, ...extra: unknown[]) => void;
     defaultTimeoutMs: number;
   }>;
 }): Promise<MbClient<CM>> => {
-  const { log = () => {}, defaultTimeoutMs = 60 * 1000 } = options;
+  const { log = () => {}, defaultTimeoutMs = 60 * 1000, signal } = options;
   const entries = Object.entries(subscribers);
   log("connect: subscribers: ", entries);
   for (const [subject, connectionListener] of entries) {
@@ -36,7 +32,6 @@ export const MessageBus = async <CM extends ConnectionMap>({
       subject,
       connectionListener,
       options,
-      signal,
     });
   }
 
@@ -112,24 +107,36 @@ export const MessageBus = async <CM extends ConnectionMap>({
 
       return Bytes.msgPackToObject<Msg<MsgResponse>>(resp);
     },
-    publish: async <S extends PartialSubject, EM extends EventMap<S>>(
+    publish: async <S extends keyof CM>(
       subject: S,
-      payload: EM[S],
+      request: CM[S]["request"],
       options: Partial<{
         headers?: Record<keyof CM[S]["headers"], string>;
       }> = {}
     ): Promise<void> => {
-      type MsgPayload = EM[S];
+      type MsgRequest = CM[S]["request"];
       const { headers } = options;
-      const data = Bytes.toMsgPack({
-        value: payload,
-      } as ValueOrError);
       const channelData = Bytes.toMsgPack({
-        data: payload,
+        data: request,
         meta: { headers },
-      } satisfies Msg<MsgPayload>);
+      } satisfies Msg<MsgRequest>);
 
-      return channel.postOn(subject, channelData);
+      return channel.postOn(subject as string, channelData);
+    },
+    subscribe: async <S extends keyof CM>(
+      subject: S,
+      connectionListener: ConnectionListener<CM, S>,
+      options: Partial<{
+        log: (message: unknown, ...extra: unknown[]) => void;
+        signal?: AbortSignal;
+      }> = {}
+    ): Promise<void> => {
+      return connectConnectionListenerToSubject({
+        channel,
+        subject: subject as string,
+        connectionListener,
+        options,
+      });
     },
   };
 };

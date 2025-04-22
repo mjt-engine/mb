@@ -13,23 +13,22 @@ export const connectConnectionListenerToSubject = async <
   subject,
   connectionListener,
   options = {},
-  signal,
 }: {
-  subject: string | RegExp;
+  subject: S | string | RegExp;
   channel: ReturnType<typeof Channel<Uint8Array>>;
   connectionListener: ConnectionListener<CM, S>;
   options?: Partial<{
     log: (message: unknown, ...extra: unknown[]) => void;
+    signal?: AbortSignal;
   }>;
-  signal?: AbortSignal;
 }) => {
-  const { log = () => {} } = options;
+  const { log = () => {}, signal } = options;
   log("connectConnectionListenerToSubject: subject: ", subject);
 
   type MsgRequest = CM[S]["request"];
   // endless loop
   // transform the raw request message to the result of the connectionListener
-  for await (const message of channel.listenOn(subject, {
+  for await (const message of channel.listenOn(subject as string, {
     callback: async (channelData) => {
       const msg = Bytes.msgPackToObject<Msg<MsgRequest>>(channelData);
       const { data, meta } = msg;

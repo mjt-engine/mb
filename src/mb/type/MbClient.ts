@@ -1,3 +1,4 @@
+import { ConnectionListener } from "./ConnectionListener";
 import type { ConnectionMap } from "./ConnectionMap";
 import type { EventMap } from "./EventMap";
 import { Msg } from "./Msg";
@@ -22,11 +23,19 @@ export type MbClient<CM extends ConnectionMap> = {
       headers?: Record<keyof CM[S]["headers"], string>;
     }>
   ) => Promise<Msg<CM[S]["response"]>>;
-  publish: <S extends PartialSubject, EM extends EventMap<S>>(
+  publish: <S extends keyof CM>(
     subject: S,
-    payload: EM[S],
+    request: CM[S]["request"],
     options?: Partial<{
       headers?: Record<keyof CM[S]["headers"], string>;
+    }>
+  ) => Promise<void>;
+  subscribe: <S extends keyof CM>(
+    subject: S,
+    listener: ConnectionListener<CM, S>,
+    options?: Partial<{
+      log: (message: unknown, ...extra: unknown[]) => void;
+      signal?: AbortSignal;
     }>
   ) => Promise<void>;
 };
