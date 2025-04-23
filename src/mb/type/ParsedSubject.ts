@@ -1,6 +1,5 @@
 import type { PartialSubject } from "./PartialSubject";
 
-
 export type ParsedSubject<T extends string = string> = {
   root: T;
   segments: string[];

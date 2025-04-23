@@ -1,7 +1,11 @@
+import { PartialSubject } from "./PartialSubject";
+
 export type ConnectionMap<
+  S extends PartialSubject = string,
   Req = unknown,
   Resp = unknown,
   Header extends string = string
 > = Record<
-  string, { request: Req; response: Resp; headers?: Record<Header, string>; }
+  S,
+  { request: Req; response: Resp; headers?: Record<Header, string> }
 >;
