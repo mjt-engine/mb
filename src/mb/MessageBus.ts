@@ -58,6 +58,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
   }>;
 }): Promise<MessageBus<CM>> => {
   let span = obs.span("MessageBus");
+  console.log("MessageBus span", span);
   const { defaultTimeoutMs = 60 * 1000, signal } = options;
   const entries = Object.entries(subscribers);
   span.log("connect: subscribers: ", entries);
