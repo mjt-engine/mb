@@ -65,10 +65,10 @@ const ee = {
 }, Dt = ({ id: e }) => {
   const t = e.split(":");
   ee.assert(t.length === 2);
-  const [r, n] = t, s = atob(n), l = new Uint8Array(s.length);
-  return s.split("").map((c) => c.charCodeAt(0)).forEach((c, y) => {
-    l[y] = c;
-  }), l;
+  const [r, n] = t, s = atob(n), c = new Uint8Array(s.length);
+  return s.split("").map((l) => l.charCodeAt(0)).forEach((l, y) => {
+    c[y] = l;
+  }), c;
 }, st = async (e) => {
   if (typeof e == "string")
     return e;
@@ -135,11 +135,11 @@ const Nt = (e) => {
   if (!e)
     return;
   const t = e.split(","), n = (t[0].match(/:(.*?);/) ?? [])[1], s = atob(t[1]);
-  let l = s.length;
-  const c = new Uint8Array(l);
-  for (; l--; )
-    c[l] = s.charCodeAt(l);
-  return new Blob([c], { type: n });
+  let c = s.length;
+  const l = new Uint8Array(c);
+  for (; c--; )
+    l[c] = s.charCodeAt(c);
+  return new Blob([l], { type: n });
 }, Oe = (e) => e instanceof ArrayBuffer ? e : typeof e == "string" ? new TextEncoder().encode(e) : ArrayBuffer.isView(e) ? e.buffer : Array.isArray(e) ? ke(e) : new ArrayBuffer(0), Ft = async (e, t) => {
   const r = Oe(e);
   return crypto.subtle.digest(t, r);
@@ -188,29 +188,29 @@ class ie {
     }
     if (this instanceof ie) {
       if (M = this, this.structures)
-        return E = this.structures, le(r);
+        return E = this.structures, ce(r);
       (!E || E.length > 0) && (E = []);
     } else
       M = je, (!E || E.length > 0) && (E = []);
-    return le(r);
+    return ce(r);
   }
   unpackMultiple(t, r) {
     let n, s = 0;
     try {
       K = !0;
-      let l = t.length, c = this ? this.unpack(t, l) : he.unpack(t, l);
+      let c = t.length, l = this ? this.unpack(t, c) : he.unpack(t, c);
       if (r) {
-        if (r(c, s, i) === !1) return;
-        for (; i < l; )
-          if (s = i, r(le(), s, i) === !1)
+        if (r(l, s, i) === !1) return;
+        for (; i < c; )
+          if (s = i, r(ce(), s, i) === !1)
             return;
       } else {
-        for (n = [c]; i < l; )
-          s = i, n.push(le());
+        for (n = [l]; i < c; )
+          s = i, n.push(ce());
         return n;
       }
-    } catch (l) {
-      throw l.lastPosition = s, l.values = n, l;
+    } catch (c) {
+      throw c.lastPosition = s, c.values = n, c;
     } finally {
       K = !1, Ae();
     }
@@ -218,14 +218,14 @@ class ie {
   _mergeStructures(t, r) {
     t = t || [], Object.isFrozen(t) && (t = t.map((n) => n.slice(0)));
     for (let n = 0, s = t.length; n < s; n++) {
-      let l = t[n];
-      l && (l.isShared = !0, n >= 32 && (l.highByte = n - 32 >> 5));
+      let c = t[n];
+      c && (c.isShared = !0, n >= 32 && (c.highByte = n - 32 >> 5));
     }
     t.sharedLength = t.length;
     for (let n in r || [])
       if (n >= 0) {
-        let s = t[n], l = r[n];
-        l && (s && ((t.restoreStructures || (t.restoreStructures = []))[n] = s), t[n] = l);
+        let s = t[n], c = r[n];
+        c && (s && ((t.restoreStructures || (t.restoreStructures = []))[n] = s), t[n] = c);
       }
     return this.structures = t;
   }
@@ -233,7 +233,7 @@ class ie {
     return this.unpack(t, r);
   }
 }
-function le(e) {
+function ce(e) {
   try {
     if (!M.trusted && !K) {
       let r = E.sharedLength || 0;
@@ -279,7 +279,7 @@ function P() {
       if (e -= 128, M.mapsAsObjects) {
         let t = {};
         for (let r = 0; r < e; r++) {
-          let n = ct();
+          let n = lt();
           n === "__proto__" && (n = "__proto_"), t[n] = P();
         }
         return t;
@@ -301,7 +301,7 @@ function P() {
     if (z >= i)
       return G.slice(i - j, (i += t) - j);
     if (z == 0 && J < 140) {
-      let r = t < 16 ? Le(t) : lt(t);
+      let r = t < 16 ? Le(t) : ct(t);
       if (r != null)
         return r;
     }
@@ -404,13 +404,13 @@ const Qt = /^[a-zA-Z_$][a-zA-Z\d_$]*$/;
 function Me(e, t) {
   function r() {
     if (r.count++ > at) {
-      let s = e.read = new Function("r", "return function(){return " + (M.freezeData ? "Object.freeze" : "") + "({" + e.map((l) => l === "__proto__" ? "__proto_:r()" : Qt.test(l) ? l + ":r()" : "[" + JSON.stringify(l) + "]:r()").join(",") + "})}")(P);
+      let s = e.read = new Function("r", "return function(){return " + (M.freezeData ? "Object.freeze" : "") + "({" + e.map((c) => c === "__proto__" ? "__proto_:r()" : Qt.test(c) ? c + ":r()" : "[" + JSON.stringify(c) + "]:r()").join(",") + "})}")(P);
       return e.highByte === 0 && (e.read = ze(t, e.read)), s();
     }
     let n = {};
-    for (let s = 0, l = e.length; s < l; s++) {
-      let c = e[s];
-      c === "__proto__" && (c = "__proto_"), n[c] = P();
+    for (let s = 0, c = e.length; s < c; s++) {
+      let l = e[s];
+      l === "__proto__" && (l = "__proto_"), n[l] = P();
     }
     return M.freezeData ? Object.freeze(n) : n;
   }
@@ -442,14 +442,14 @@ function ae(e) {
     if ((s & 128) === 0)
       n.push(s);
     else if ((s & 224) === 192) {
-      const l = x[i++] & 63;
-      n.push((s & 31) << 6 | l);
+      const c = x[i++] & 63;
+      n.push((s & 31) << 6 | c);
     } else if ((s & 240) === 224) {
-      const l = x[i++] & 63, c = x[i++] & 63;
-      n.push((s & 31) << 12 | l << 6 | c);
+      const c = x[i++] & 63, l = x[i++] & 63;
+      n.push((s & 31) << 12 | c << 6 | l);
     } else if ((s & 248) === 240) {
-      const l = x[i++] & 63, c = x[i++] & 63, y = x[i++] & 63;
-      let w = (s & 7) << 18 | l << 12 | c << 6 | y;
+      const c = x[i++] & 63, l = x[i++] & 63, y = x[i++] & 63;
+      let w = (s & 7) << 18 | c << 12 | l << 6 | y;
       w > 65535 && (w -= 65536, n.push(w >>> 10 & 1023 | 55296), w = 56320 | w & 1023), n.push(w);
     } else
       n.push(s);
@@ -467,7 +467,7 @@ function He(e) {
   if (M.mapsAsObjects) {
     let t = {};
     for (let r = 0; r < e; r++) {
-      let n = ct();
+      let n = lt();
       n === "__proto__" && (n = "__proto_"), t[n] = P();
     }
     return t;
@@ -479,7 +479,7 @@ function He(e) {
   }
 }
 var q = String.fromCharCode;
-function lt(e) {
+function ct(e) {
   let t = i, r = new Array(e);
   for (let n = 0; n < e; n++) {
     const s = x[i++];
@@ -529,43 +529,43 @@ function Le(e) {
       if (e === 4)
         return q(t, r, n, s);
       {
-        let l = x[i++];
-        if ((l & 128) > 0) {
+        let c = x[i++];
+        if ((c & 128) > 0) {
           i -= 5;
           return;
         }
-        return q(t, r, n, s, l);
+        return q(t, r, n, s, c);
       }
     } else if (e < 8) {
-      let l = x[i++], c = x[i++];
-      if ((l & 128) > 0 || (c & 128) > 0) {
+      let c = x[i++], l = x[i++];
+      if ((c & 128) > 0 || (l & 128) > 0) {
         i -= 6;
         return;
       }
       if (e < 7)
-        return q(t, r, n, s, l, c);
+        return q(t, r, n, s, c, l);
       let y = x[i++];
       if ((y & 128) > 0) {
         i -= 7;
         return;
       }
-      return q(t, r, n, s, l, c, y);
+      return q(t, r, n, s, c, l, y);
     } else {
-      let l = x[i++], c = x[i++], y = x[i++], w = x[i++];
-      if ((l & 128) > 0 || (c & 128) > 0 || (y & 128) > 0 || (w & 128) > 0) {
+      let c = x[i++], l = x[i++], y = x[i++], w = x[i++];
+      if ((c & 128) > 0 || (l & 128) > 0 || (y & 128) > 0 || (w & 128) > 0) {
         i -= 8;
         return;
       }
       if (e < 10) {
         if (e === 8)
-          return q(t, r, n, s, l, c, y, w);
+          return q(t, r, n, s, c, l, y, w);
         {
           let A = x[i++];
           if ((A & 128) > 0) {
             i -= 9;
             return;
           }
-          return q(t, r, n, s, l, c, y, w, A);
+          return q(t, r, n, s, c, l, y, w, A);
         }
       } else if (e < 12) {
         let A = x[i++], p = x[i++];
@@ -574,13 +574,13 @@ function Le(e) {
           return;
         }
         if (e < 11)
-          return q(t, r, n, s, l, c, y, w, A, p);
+          return q(t, r, n, s, c, l, y, w, A, p);
         let b = x[i++];
         if ((b & 128) > 0) {
           i -= 11;
           return;
         }
-        return q(t, r, n, s, l, c, y, w, A, p, b);
+        return q(t, r, n, s, c, l, y, w, A, p, b);
       } else {
         let A = x[i++], p = x[i++], b = x[i++], O = x[i++];
         if ((A & 128) > 0 || (p & 128) > 0 || (b & 128) > 0 || (O & 128) > 0) {
@@ -589,14 +589,14 @@ function Le(e) {
         }
         if (e < 14) {
           if (e === 12)
-            return q(t, r, n, s, l, c, y, w, A, p, b, O);
+            return q(t, r, n, s, c, l, y, w, A, p, b, O);
           {
             let _ = x[i++];
             if ((_ & 128) > 0) {
               i -= 13;
               return;
             }
-            return q(t, r, n, s, l, c, y, w, A, p, b, O, _);
+            return q(t, r, n, s, c, l, y, w, A, p, b, O, _);
           }
         } else {
           let _ = x[i++], C = x[i++];
@@ -605,13 +605,13 @@ function Le(e) {
             return;
           }
           if (e < 15)
-            return q(t, r, n, s, l, c, y, w, A, p, b, O, _, C);
+            return q(t, r, n, s, c, l, y, w, A, p, b, O, _, C);
           let D = x[i++];
           if ((D & 128) > 0) {
             i -= 15;
             return;
           }
-          return q(t, r, n, s, l, c, y, w, A, p, b, O, _, C, D);
+          return q(t, r, n, s, c, l, y, w, A, p, b, O, _, C, D);
         }
       }
     }
@@ -659,7 +659,7 @@ function Z(e) {
     throw new Error("Unknown extension type " + t);
 }
 var Ye = new Array(4096);
-function ct() {
+function lt() {
   let e = x[i++];
   if (e >= 160 && e < 192) {
     if (e = e - 160, z >= i)
@@ -668,17 +668,17 @@ function ct() {
       return me(e);
   } else
     return i--, ut(P());
-  let t = (e << 5 ^ (e > 1 ? B.getUint16(i) : e > 0 ? x[i] : 0)) & 4095, r = Ye[t], n = i, s = i + e - 3, l, c = 0;
+  let t = (e << 5 ^ (e > 1 ? B.getUint16(i) : e > 0 ? x[i] : 0)) & 4095, r = Ye[t], n = i, s = i + e - 3, c, l = 0;
   if (r && r.bytes == e) {
     for (; n < s; ) {
-      if (l = B.getUint32(n), l != r[c++]) {
+      if (c = B.getUint32(n), c != r[l++]) {
         n = 1879048192;
         break;
       }
       n += 4;
     }
     for (s += 3; n < s; )
-      if (l = x[n++], l != r[c++]) {
+      if (c = x[n++], c != r[l++]) {
         n = 1879048192;
         break;
       }
@@ -687,10 +687,10 @@ function ct() {
     s -= 3, n = i;
   }
   for (r = [], Ye[t] = r, r.bytes = e; n < s; )
-    l = B.getUint32(n), r.push(l), n += 4;
+    c = B.getUint32(n), r.push(c), n += 4;
   for (s += 3; n < s; )
-    l = x[n++], r.push(l);
-  let y = e < 16 ? Le(e) : lt(e);
+    c = x[n++], r.push(c);
+  let y = e < 16 ? Le(e) : ct(e);
   return y != null ? r.string = y : r.string = me(e);
 }
 function ut(e) {
@@ -727,8 +727,8 @@ $[105] = (e) => {
   r >= 144 && r < 160 || r == 220 || r == 221 ? n = [] : n = {};
   let s = { target: n };
   H.set(t, s);
-  let l = P();
-  return s.used ? Object.assign(n, l) : (s.target = l, l);
+  let c = P();
+  return s.used ? Object.assign(n, c) : (s.target = c, c);
 };
 $[112] = (e) => {
   if (M.structuredClone === !1) throw new Error("Structured clone extension is disabled");
@@ -764,8 +764,8 @@ $[255] = (e) => e.length == 4 ? new Date((e[0] * 16777216 + (e[1] << 16) + (e[2]
   ((e[0] << 24) + (e[1] << 16) + (e[2] << 8) + e[3]) / 1e6 + ((e[4] & 128 ? -281474976710656 : 0) + e[6] * 1099511627776 + e[7] * 4294967296 + e[8] * 16777216 + (e[9] << 16) + (e[10] << 8) + e[11]) * 1e3
 ) : /* @__PURE__ */ new Date("invalid");
 function xt(e) {
-  let t = J, r = i, n = j, s = z, l = G, c = H, y = N, w = new Uint8Array(x.slice(0, J)), A = E, p = E.slice(0, E.length), b = M, O = K, _ = e();
-  return J = t, i = r, j = n, z = s, G = l, H = c, N = y, x = w, K = O, E = A, E.splice(0, E.length, ...p), M = b, B = new DataView(x.buffer, x.byteOffset, x.byteLength), _;
+  let t = J, r = i, n = j, s = z, c = G, l = H, y = N, w = new Uint8Array(x.slice(0, J)), A = E, p = E.slice(0, E.length), b = M, O = K, _ = e();
+  return J = t, i = r, j = n, z = s, G = c, H = l, N = y, x = w, K = O, E = A, E.splice(0, E.length, ...p), M = b, B = new DataView(x.buffer, x.byteOffset, x.byteLength), _;
 }
 function Ae() {
   x = null, H = null, E = null;
@@ -785,7 +785,7 @@ try {
 } catch {
 }
 let Be, gt;
-const ye = typeof Buffer < "u", ce = ye ? function(e) {
+const ye = typeof Buffer < "u", le = ye ? function(e) {
   return Buffer.allocUnsafeSlow(e);
 } : Uint8Array, ht = ye ? Buffer : Uint8Array, Ge = ye ? 4294967296 : 2144337920;
 let a, se, I, f = 0, V, L = null, er;
@@ -793,7 +793,7 @@ const tr = 21760, rr = /[\u0080-\uFFFF]/, W = Symbol("record-id");
 class _e extends ie {
   constructor(t) {
     super(t), this.offset = 0;
-    let r, n, s, l, c = ht.prototype.utf8Write ? function(o, h) {
+    let r, n, s, c, l = ht.prototype.utf8Write ? function(o, h) {
       return a.utf8Write(o, h, a.byteLength - h);
     } : ue && ue.encodeInto ? function(o, h) {
       return ue.encodeInto(o, a.subarray(h)).written;
@@ -810,7 +810,7 @@ class _e extends ie {
       throw new Error("Maximum maxSharedStructure + maxOwnStructure is 8192");
     let D = [], re = 0, X = 0;
     this.pack = this.encode = function(o, h) {
-      if (a || (a = new ce(8192), I = a.dataView || (a.dataView = new DataView(a.buffer, 0, 8192)), f = 0), V = a.length - 10, V - f < 2048 ? (a = new ce(a.length), I = a.dataView || (a.dataView = new DataView(a.buffer, 0, a.length)), V = a.length - 10, f = 0) : f = f + 7 & 2147483640, r = f, h & or && (f += h & 255), l = y.structuredClone ? /* @__PURE__ */ new Map() : null, y.bundleStrings && typeof o != "string" ? (L = [], L.size = 1 / 0) : L = null, s = y.structures, s) {
+      if (a || (a = new le(8192), I = a.dataView || (a.dataView = new DataView(a.buffer, 0, 8192)), f = 0), V = a.length - 10, V - f < 2048 ? (a = new le(a.length), I = a.dataView || (a.dataView = new DataView(a.buffer, 0, a.length)), V = a.length - 10, f = 0) : f = f + 7 & 2147483640, r = f, h & or && (f += h & 255), c = y.structuredClone ? /* @__PURE__ */ new Map() : null, y.bundleStrings && typeof o != "string" ? (L = [], L.size = 1 / 0) : L = null, s = y.structures, s) {
         s.uninitialized && (s = y._mergeStructures(y.getStructures()));
         let u = s.sharedLength || 0;
         if (u > p)
@@ -837,8 +837,8 @@ class _e extends ie {
       try {
         y.randomAccessStructure && o && o.constructor && o.constructor === Object ? Et(o) : R(o);
         let u = L;
-        if (L && Xe(r, R, 0), l && l.idsToInsert) {
-          let g = l.idsToInsert.sort((k, T) => k.offset > T.offset ? 1 : -1), S = g.length, U = -1;
+        if (L && Xe(r, R, 0), c && c.idsToInsert) {
+          let g = c.idsToInsert.sort((k, T) => k.offset > T.offset ? 1 : -1), S = g.length, U = -1;
           for (; u && S > 0; ) {
             let k = g[--S].offset + r;
             k < u.stringsPosition + r && U === -1 && (U = 0), k > u.position + r ? U >= 0 && (U += 6) : (U >= 0 && (I.setUint32(
@@ -851,7 +851,7 @@ class _e extends ie {
             I.getUint32(u.position + r) + U
           ), f += g.length * 6, f > V && Q(f), y.offset = f;
           let m = sr(a.subarray(r, f), g);
-          return l = null, m;
+          return c = null, m;
         }
         return y.offset = f, h & fr ? (a.start = r, a.end = f, a) : a.subarray(r, f);
       } catch (u) {
@@ -899,13 +899,13 @@ class _e extends ie {
         let g;
         u < 32 ? g = 1 : u < 256 ? g = 2 : u < 65536 ? g = 3 : g = 5;
         let S = u * 3;
-        if (f + S > V && (a = Q(f + S)), u < 64 || !c) {
+        if (f + S > V && (a = Q(f + S)), u < 64 || !l) {
           let U, m, k, T = f + g;
           for (U = 0; U < u; U++)
             m = o.charCodeAt(U), m < 128 ? a[T++] = m : m < 2048 ? (a[T++] = m >> 6 | 192, a[T++] = m & 63 | 128) : (m & 64512) === 55296 && ((k = o.charCodeAt(U + 1)) & 64512) === 56320 ? (m = 65536 + ((m & 1023) << 10) + (k & 1023), U++, a[T++] = m >> 18 | 240, a[T++] = m >> 12 & 63 | 128, a[T++] = m >> 6 & 63 | 128, a[T++] = m & 63 | 128) : (a[T++] = m >> 12 | 224, a[T++] = m >> 6 & 63 | 128, a[T++] = m & 63 | 128);
           d = T - f - g;
         } else
-          d = c(o, f + g);
+          d = l(o, f + g);
         d < 32 ? a[f++] = 160 | d : d < 256 ? (g < 2 && a.copyWithin(f + 2, f + 1, f + 1 + d), a[f++] = 217, a[f++] = d) : d < 65536 ? (g < 3 && a.copyWithin(f + 3, f + 2, f + 2 + d), a[f++] = 218, a[f++] = d >> 8, a[f++] = d & 255) : (g < 5 && a.copyWithin(f + 5, f + 3, f + 3 + d), a[f++] = 219, I.setUint32(f, d), f += 4), f += d;
       } else if (h === "number")
         if (o >>> 0 === o)
@@ -930,17 +930,17 @@ class _e extends ie {
         if (!o)
           a[f++] = 192;
         else {
-          if (l) {
-            let g = l.get(o);
+          if (c) {
+            let g = c.get(o);
             if (g) {
               if (!g.id) {
-                let S = l.idsToInsert || (l.idsToInsert = []);
+                let S = c.idsToInsert || (c.idsToInsert = []);
                 g.id = S.push(g);
               }
               a[f++] = 214, a[f++] = 112, I.setUint32(f, g.id), f += 4;
               return;
             } else
-              l.set(o, { offset: f - r });
+              c.set(o, { offset: f - r });
           }
           let u = o.constructor;
           if (u === Object)
@@ -1101,7 +1101,7 @@ class _e extends ie {
         );
       } else
         h = (Math.max(o - r << 2, a.length - 1) >> 12) + 1 << 12;
-      let d = new ce(h);
+      let d = new le(h);
       return I = d.dataView || (d.dataView = new DataView(d.buffer, 0, h)), o = Math.min(o, a.length), a.copy ? a.copy(d, 0, r, o) : d.set(a.slice(r, o)), f -= r, r = 0, V = d.length - 10, a = d;
     }, pe = (o, h, d) => {
       let u = s.nextId;
@@ -1110,7 +1110,7 @@ class _e extends ie {
       o[W] = u, o.__keys__ = h, s[u - 64] = h, u < _ ? (h.isShared = !0, s.sharedLength = u - 63, n = !0, g >= 0 ? (a[f++] = (u & 31) + 96, a[f++] = g) : a[f++] = u) : (g >= 0 ? (a[f++] = 213, a[f++] = 114, a[f++] = (u & 31) + 96, a[f++] = g) : (a[f++] = 212, a[f++] = 114, a[f++] = u), d && (re += X * d), D.length >= b && (D.shift()[W] = 0), D.push(o), R(h));
     }, $e = (o, h, d, u) => {
       let g = a, S = f, U = V, m = r;
-      a = se, f = 0, r = 0, a || (se = a = new ce(8192)), V = a.length - 10, pe(o, h, u), se = a;
+      a = se, f = 0, r = 0, a || (se = a = new le(8192)), V = a.length - 10, pe(o, h, u), se = a;
       let k = f;
       if (a = g, f = S, V = U, r = m, k > 1) {
         let T = f + k - 1;
@@ -1150,27 +1150,27 @@ Be = [{
   pack(e, t, r) {
     let n = e.getTime() / 1e3;
     if ((this.useTimestamp32 || e.getMilliseconds() === 0) && n >= 0 && n < 4294967296) {
-      let { target: s, targetView: l, position: c } = t(6);
-      s[c++] = 214, s[c++] = 255, l.setUint32(c, n);
+      let { target: s, targetView: c, position: l } = t(6);
+      s[l++] = 214, s[l++] = 255, c.setUint32(l, n);
     } else if (n > 0 && n < 4294967296) {
-      let { target: s, targetView: l, position: c } = t(10);
-      s[c++] = 215, s[c++] = 255, l.setUint32(c, e.getMilliseconds() * 4e6 + (n / 1e3 / 4294967296 >> 0)), l.setUint32(c + 4, n);
+      let { target: s, targetView: c, position: l } = t(10);
+      s[l++] = 215, s[l++] = 255, c.setUint32(l, e.getMilliseconds() * 4e6 + (n / 1e3 / 4294967296 >> 0)), c.setUint32(l + 4, n);
     } else if (isNaN(n)) {
       if (this.onInvalidDate)
         return t(0), r(this.onInvalidDate());
-      let { target: s, targetView: l, position: c } = t(3);
-      s[c++] = 212, s[c++] = 255, s[c++] = 255;
+      let { target: s, targetView: c, position: l } = t(3);
+      s[l++] = 212, s[l++] = 255, s[l++] = 255;
     } else {
-      let { target: s, targetView: l, position: c } = t(15);
-      s[c++] = 199, s[c++] = 12, s[c++] = 255, l.setUint32(c, e.getMilliseconds() * 1e6), l.setBigInt64(c + 4, BigInt(Math.floor(n)));
+      let { target: s, targetView: c, position: l } = t(15);
+      s[l++] = 199, s[l++] = 12, s[l++] = 255, c.setUint32(l, e.getMilliseconds() * 1e6), c.setBigInt64(l + 4, BigInt(Math.floor(n)));
     }
   }
 }, {
   pack(e, t, r) {
     if (this.setAsEmptyObject)
       return t(0), r({});
-    let n = Array.from(e), { target: s, position: l } = t(this.moreTypes ? 3 : 0);
-    this.moreTypes && (s[l++] = 212, s[l++] = 115, s[l++] = 0), r(n);
+    let n = Array.from(e), { target: s, position: c } = t(this.moreTypes ? 3 : 0);
+    this.moreTypes && (s[c++] = 212, s[c++] = 115, s[c++] = 0), r(n);
   }
 }, {
   pack(e, t, r) {
@@ -1200,16 +1200,16 @@ Be = [{
 function Ke(e, t, r, n) {
   let s = e.byteLength;
   if (s + 1 < 256) {
-    var { target: l, position: c } = r(4 + s);
-    l[c++] = 199, l[c++] = s + 1;
+    var { target: c, position: l } = r(4 + s);
+    c[l++] = 199, c[l++] = s + 1;
   } else if (s + 1 < 65536) {
-    var { target: l, position: c } = r(5 + s);
-    l[c++] = 200, l[c++] = s + 1 >> 8, l[c++] = s + 1 & 255;
+    var { target: c, position: l } = r(5 + s);
+    c[l++] = 200, c[l++] = s + 1 >> 8, c[l++] = s + 1 & 255;
   } else {
-    var { target: l, position: c, targetView: y } = r(7 + s);
-    l[c++] = 201, y.setUint32(c, s + 1), c += 4;
+    var { target: c, position: l, targetView: y } = r(7 + s);
+    c[l++] = 201, y.setUint32(l, s + 1), l += 4;
   }
-  l[c++] = 116, l[c++] = t, e.buffer || (e = new Uint8Array(e)), l.set(new Uint8Array(e.buffer, e.byteOffset, e.byteLength), c);
+  c[l++] = 116, c[l++] = t, e.buffer || (e = new Uint8Array(e)), c.set(new Uint8Array(e.buffer, e.byteOffset, e.byteLength), l);
 }
 function Ze(e, t) {
   let r = e.byteLength;
@@ -1221,8 +1221,8 @@ function Ze(e, t) {
     var { target: n, position: s } = t(r + 3);
     n[s++] = 197, n[s++] = r >> 8, n[s++] = r & 255;
   } else {
-    var { target: n, position: s, targetView: l } = t(r + 5);
-    n[s++] = 198, l.setUint32(s, r), s += 4;
+    var { target: n, position: s, targetView: c } = t(r + 5);
+    n[s++] = 198, c.setUint32(s, r), s += 4;
   }
   n.set(e, s);
 }
@@ -1252,10 +1252,10 @@ function nr(e, t, r, n) {
 function sr(e, t) {
   let r, n = t.length * 6, s = e.length - n;
   for (; r = t.pop(); ) {
-    let l = r.offset, c = r.id;
-    e.copyWithin(l + n, l, s), n -= 6;
-    let y = l + n;
-    e[y++] = 214, e[y++] = 105, e[y++] = c >> 24, e[y++] = c >> 16 & 255, e[y++] = c >> 8 & 255, e[y++] = c & 255, s = l;
+    let c = r.offset, l = r.id;
+    e.copyWithin(c + n, c, s), n -= 6;
+    let y = c + n;
+    e[y++] = 214, e[y++] = 105, e[y++] = l >> 24, e[y++] = l >> 16 & 255, e[y++] = l >> 8 & 255, e[y++] = l & 255, s = c;
   }
   return e;
 }
@@ -1275,8 +1275,8 @@ function ir(e, t) {
 let yt = new _e({ useRecords: !1 });
 yt.pack;
 yt.pack;
-const fr = 512, ar = 1024, or = 2048, lr = (e) => new _e({ structuredClone: !0 }).unpack(new Uint8Array(e));
-function cr(e) {
+const fr = 512, ar = 1024, or = 2048, cr = (e) => new _e({ structuredClone: !0 }).unpack(new Uint8Array(e));
+function lr(e) {
   return Ie(e) ? dr(e) : ur(e);
 }
 async function ur(e) {
@@ -1290,9 +1290,9 @@ function dr(e) {
 const wt = (e, t = "application/octet-stream") => e instanceof Blob ? e : e instanceof ArrayBuffer ? new Blob([e], { type: t }) : typeof e == "string" ? new Blob([e], { type: t }) : ArrayBuffer.isView(e) ? new Blob([e], { type: t }) : Array.isArray(e) ? new Blob([ke(e)], { type: t }) : new Blob([]), xr = async (e) => {
   const t = wt(e), r = new FileReader();
   return new Promise((n, s) => {
-    const l = (c) => typeof c == "string" ? n(c) : (console.log({ bytes: e }), s("Unable to convert to data URL"));
-    r.onload = function(c) {
-      l(c.target?.result);
+    const c = (l) => typeof l == "string" ? n(l) : (console.log({ bytes: e }), s("Unable to convert to data URL"));
+    r.onload = function(l) {
+      c(l.target?.result);
     }, r.readAsDataURL(t);
   });
 }, gr = (e) => {
@@ -1311,7 +1311,7 @@ const wt = (e, t = "application/octet-stream") => e instanceof Blob ? e : e inst
     return "Array";
 }, yr = (e) => new TextEncoder().encode(e), v = {
   toMsgPack: gr,
-  msgPackToObject: lr,
+  msgPackToObject: cr,
   typeOfBytes: hr,
   toDataUrl: xr,
   dataUrlToBlob: jt,
@@ -1325,7 +1325,7 @@ const wt = (e, t = "application/octet-stream") => e instanceof Blob ? e : e inst
   immediateToArrayBuffer: Oe,
   toBlob: wt,
   toText: st,
-  toBase64: cr,
+  toBase64: lr,
   encodeAsString: nt,
   test: qt,
   assignMediaTypeToBlob: Ct,
@@ -1340,19 +1340,19 @@ const wt = (e, t = "application/octet-stream") => e instanceof Blob ? e : e inst
   const { quiet: r = !1, def: n = void 0, onError: s } = t;
   try {
     return e();
-  } catch (l) {
-    return r || (console.error(l), St(s) && console.log(pr(s))), n;
+  } catch (c) {
+    return r || (console.error(c), St(s) && console.log(pr(s))), n;
   }
 }, br = {
   isDefined: St,
   isUndefined: pt,
   safe: Sr
 }, { isDefined: Pe, isUndefined: mr, safe: bt } = br, De = (e) => {
-  const { message: t, stack: r, extra: n, cause: s } = e, l = s ? `
-Caused by: ${De(s)}` : "", c = n ? `
+  const { message: t, stack: r, extra: n, cause: s } = e, c = s ? `
+Caused by: ${De(s)}` : "", l = n ? `
 Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   return [t, r].filter(Pe).join(`
-`) + c + l;
+`) + l + c;
 }, mt = (e) => typeof e == "string" ? e : e instanceof Response ? `${e.url} ${e.status} ${e.statusText}` : typeof e == "object" && e !== null && "message" in e ? De(e) : bt(() => JSON.stringify(e, void 0, 2)) ?? "", Ar = async (e) => {
   if (typeof e == "string")
     return e;
@@ -1387,9 +1387,9 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   options: n = {}
 }) => {
   const { log: s = () => {
-  }, signal: l } = n;
+  }, signal: c } = n;
   s("connectConnectionListenerToSubject: subject: ", t);
-  for await (const c of e.listenOn(t, {
+  for await (const l of e.listenOn(t, {
     callback: async (y) => {
       const w = v.msgPackToObject(y), { data: A, meta: p } = w;
       if (Ot(w))
@@ -1399,7 +1399,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
       try {
         const b = await r(A, {
           headers: p?.headers,
-          signal: l
+          signal: c
         });
         return v.toMsgPack({
           data: b
@@ -1432,14 +1432,14 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   clock: r = performance
 } = {}) => {
   const n = {
-    start: (s, ...l) => {
-      n.addLog({ traceId: s, message: "start", extra: l });
+    start: (s, ...c) => {
+      n.addLog({ traceId: s, message: "start", extra: c });
     },
-    addLog: ({ traceId: s, message: l, timestamp: c = r.now(), extra: y = [] }) => {
-      Er(e)(s) && t(`${c} ${s}: ${l}`, ...y);
+    addLog: ({ traceId: s, message: c, timestamp: l = r.now(), extra: y = [] }) => {
+      Er(e)(s) && t(`${l} ${s}: ${c}`, ...y);
     },
-    end: (s, ...l) => {
-      n.addLog({ traceId: s, message: "end", extra: l });
+    end: (s, ...c) => {
+      n.addLog({ traceId: s, message: "end", extra: c });
     }
   };
   return n;
@@ -1458,8 +1458,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   obs: n = Bt()
 }) => {
   let s = n.span("MessageBus");
-  console.log("MessageBus span", s);
-  const { defaultTimeoutMs: l = 60 * 1e3, signal: c } = r, y = Object.entries(t);
+  const { defaultTimeoutMs: c = 60 * 1e3, signal: l } = r, y = Object.entries(t);
   s.log("connect: subscribers: ", y);
   for (const [w, A] of y)
     mr(A) || We({
@@ -1484,7 +1483,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
         }
       );
       for await (const re of D) {
-        if (c?.aborted)
+        if (l?.aborted)
           return;
         const X = v.msgPackToObject(re);
         await _?.(X);
@@ -1493,7 +1492,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
     },
     request: async (w, A, p = {}) => {
       s = s.span("request").log("subject", w);
-      const { timeoutMs: b = l, headers: O } = p, _ = v.toMsgPack({
+      const { timeoutMs: b = c, headers: O } = p, _ = v.toMsgPack({
         data: A,
         meta: { headers: O }
       }), C = s.span("channel request").log("requestData", _), D = await e.request(w, _, {
@@ -1520,21 +1519,21 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   listenerProducer: t
 }) => {
   const r = {
-    postOn: (n, s, l = {}) => {
-      const { signal: c, reply: y } = l;
-      e(c)(n)({ subject: n, data: s, reply: y });
+    postOn: (n, s, c = {}) => {
+      const { signal: l, reply: y } = c;
+      e(l)(n)({ subject: n, data: s, reply: y });
     },
     listenOn: function(n, s = {}) {
-      const { signal: l, once: c, callback: y } = s, w = new AbortController();
-      if (l?.aborted)
+      const { signal: c, once: l, callback: y } = s, w = new AbortController();
+      if (c?.aborted)
         throw new Error(`listenOn: Signal is already aborted for ${n}`);
-      l?.addEventListener("abort", () => {
+      c?.addEventListener("abort", () => {
         w.abort();
       });
       const A = t(w.signal)(n)(
         async (p) => {
           if (p.subject === n) {
-            c && w.abort();
+            l && w.abort();
             const b = await y?.(p.data, {
               finished: p.finished ?? !1
             });
@@ -1564,12 +1563,12 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
           yield p.data;
       }();
     },
-    request: async (n, s, l = {}) => {
-      const { signal: c, timeoutMs: y } = l, w = `response-${Date.now()}-${crypto.randomUUID()}`;
+    request: async (n, s, c = {}) => {
+      const { signal: l, timeoutMs: y } = c, w = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((A, p) => {
-        c?.aborted && p(
+        l?.aborted && p(
           new Error(`request: Signal is already aborted for ${n}`)
-        ), c?.addEventListener("abort", () => {
+        ), l?.addEventListener("abort", () => {
           p(new Error("Request aborted"));
         });
         let b;
@@ -1583,17 +1582,17 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
           callback: (O) => {
             clearTimeout(b), A(O);
           },
-          signal: c,
+          signal: l,
           once: !0
-        }), r.postOn(n, s, { reply: w, signal: c });
+        }), r.postOn(n, s, { reply: w, signal: l });
       });
     },
-    requestMany: async (n, s, l = {}) => {
-      const { signal: c, timeoutMs: y, callback: w } = l, A = `response-${Date.now()}-${crypto.randomUUID()}`;
+    requestMany: async (n, s, c = {}) => {
+      const { signal: l, timeoutMs: y, callback: w } = c, A = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((p, b) => {
-        c?.aborted && b(
+        l?.aborted && b(
           new Error(`requestMany: Signal is already aborted for ${n}`)
-        ), c?.addEventListener("abort", () => {
+        ), l?.addEventListener("abort", () => {
           b(new Error("Request aborted"));
         });
         let O;
@@ -1609,9 +1608,9 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
             if (C !== void 0 && w?.(C), D.finished)
               return clearTimeout(O), p(_);
           },
-          signal: c
+          signal: l
         });
-        return r.postOn(n, s, { reply: A, signal: c }), _;
+        return r.postOn(n, s, { reply: A, signal: l }), _;
       });
     }
   };
@@ -1625,21 +1624,21 @@ const Mr = (e) => kr({
     t?.aborted || e.emit(r, n);
   },
   listenerProducer: (t) => (r) => (n) => {
-    const s = [], l = {
+    const s = [], c = {
       resolve: void 0
-    }, c = async (y) => {
+    }, l = async (y) => {
       if (t?.aborted)
         return;
       const w = await n?.(y), A = Pe(w) ? w : y;
-      s.push(A), l.resolve?.();
+      s.push(A), c.resolve?.();
     };
     return t?.addEventListener("abort", () => {
-      e.off(r, c);
-    }), e.on(r, c), {
+      e.off(r, l);
+    }), e.on(r, l), {
       [Symbol.asyncIterator]: async function* () {
         for (; !t?.aborted; )
           s.length > 0 ? yield s.shift() : await new Promise((y) => {
-            l.resolve = y;
+            c.resolve = y;
           });
       }
     };

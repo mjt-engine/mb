@@ -2,6 +2,7 @@
 
 
 ## 2025-04-23
+- remove debug logging ([368b0c1](https://github.com/mjt-engine/mb/commit/368b0c1b551b8d04ea94b6c356258abffcf8b971)) by Matt Taylor
 - debug mb obs ([8114583](https://github.com/mjt-engine/mb/commit/811458314bc4905c2ea1f572ce0d9bc55ca12eec)) by Matt Taylor
 - added observe to mb ([b0b3a31](https://github.com/mjt-engine/mb/commit/b0b3a31f89130ff35e5b995d9ee98f278ed4dd27)) by Matt Taylor
 - Added removeAllListners to Emitter type ([027d7ba](https://github.com/mjt-engine/mb/commit/027d7ba39d7468b8e21d9346d951c333056e45bf)) by Matt Taylor
