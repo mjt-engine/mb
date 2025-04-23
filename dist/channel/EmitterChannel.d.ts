@@ -1,9 +1,5 @@
 import { ChannelMessage } from "./type/ChannelMessage";
-export type Emitter<T = unknown> = {
-    emit: (event: string, ...args: T[]) => void;
-    on: (event: string, listener: (...args: T[]) => void | Promise<void>) => void;
-    off: (event: string, listener: (...args: T[]) => void | Promise<void>) => void;
-};
+import { Emitter } from "./type/Emitter";
 export declare const EmitterChannel: <T>(emitter: Emitter<ChannelMessage<T>>) => {
     postOn: (subject: string, data: T, options?: Partial<{
         signal?: AbortSignal;

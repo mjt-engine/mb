@@ -1,15 +1,7 @@
 import { isDefined } from "@mjt-engine/object";
 import { Channel } from "./Channel";
 import { ChannelMessage } from "./type/ChannelMessage";
-
-export type Emitter<T = unknown> = {
-  emit: (event: string, ...args: T[]) => void;
-  on: (event: string, listener: (...args: T[]) => void | Promise<void>) => void;
-  off: (
-    event: string,
-    listener: (...args: T[]) => void | Promise<void>
-  ) => void;
-};
+import { Emitter } from "./type/Emitter";
 
 export const EmitterChannel = <T>(
   emitter: Emitter<ChannelMessage<T>>

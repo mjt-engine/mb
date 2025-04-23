@@ -13,4 +13,5 @@ export * from "./channel/type/ChannelMessage";
 export * from "./channel/type/AbortableListener";
 export * from "./channel/type/AbortablePoster";
 export * from "./channel/Channel";
+export * from "./channel/type/Emitter";
 export * from "./channel/EmitterChannel";
