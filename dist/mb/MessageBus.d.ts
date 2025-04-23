@@ -1,8 +1,8 @@
+import { Observe } from "@mjt-engine/observe";
 import { Channel } from "../channel/Channel";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
-import { Observe } from "@mjt-engine/observe";
 export type MessageBus<CM extends ConnectionMap> = {
     requestMany: <S extends keyof CM>(subject: S, request: CM[S]["request"], options?: Partial<{
         headers?: Record<keyof CM[S]["headers"], string>;
