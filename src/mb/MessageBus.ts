@@ -1,12 +1,14 @@
-import { Bytes } from "@mjt-engine/byte";
+// import { Bytes } from "@mjt-engine/byte";
 import { isUndefined } from "@mjt-engine/object";
+import { Observe } from "@mjt-engine/observe";
 import { Channel } from "../channel/Channel";
 import { connectConnectionListenerToSubject } from "./connectConnectionListenerToSubject";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
-import { Observe } from "@mjt-engine/observe";
+import { FakeBytes } from "./FakeBytes";
 
+const Bytes = FakeBytes();
 export type MessageBus<CM extends ConnectionMap> = {
   requestMany: <S extends keyof CM>(
     subject: S,
@@ -93,6 +95,11 @@ export const MessageBus = async <CM extends ConnectionMap>({
         meta: { headers },
       } satisfies Msg<MsgRequest>);
 
+      // const requestData = serialize({
+      //   data: request,
+      //   meta: { headers },
+      // }) as Msg<MsgRequest>;
+
       const channelRequestManySpan = requestManySpan
         .span("channel requestMany")
         .log("start requestMany", subject);
@@ -109,6 +116,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
         }
         const responseObject =
           Bytes.msgPackToObject<Msg<MsgResponse>>(respChannelData);
+        // const responseObject= deserialize(respChannelData);
         await callback?.(responseObject);
       }
       channelRequestManySpan.end();
