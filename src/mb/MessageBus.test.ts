@@ -2,15 +2,24 @@ import { describe, expect, test } from "vitest";
 import { EmitterChannel } from "../channel/EmitterChannel";
 import { MessageBus } from "./MessageBus";
 import EventEmitter from "node:events";
+import { Observe, ObserveAgent } from "@mjt-engine/observe";
 
 describe("Mbs", () => {
+  let timeStep = 0;
+  const obs = Observe(
+    "test",
+    ObserveAgent({
+      // logMatchers: [".*channel"],
+      // logMatchers: [".*"],
+      clock: { now: () => timeStep++ },
+    })
+  );
   test("basic pubsub", async () => {
     const expected = "hello world";
+
     const bus = await MessageBus({
+      obs,
       channel: EmitterChannel(new EventEmitter()),
-      options: {
-        log: console.log,
-      },
       subscribers: {
         test: (request) => {
           return `${request} world`;
@@ -23,10 +32,8 @@ describe("Mbs", () => {
   test("subscribe", async () => {
     const expected = "hello world";
     const bus = await MessageBus({
+      obs,
       channel: EmitterChannel(new EventEmitter()),
-      options: {
-        log: console.log,
-      },
     });
     bus.subscribe("test-sub", (request) => {
       return `${request} world`;

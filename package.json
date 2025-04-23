@@ -33,6 +33,7 @@
     "@mjt-engine/byte": "github:mjt-engine/byte",
     "@mjt-engine/error": "github:mjt-engine/error",
     "@mjt-engine/object": "github:mjt-engine/object",
+    "@mjt-engine/observe": "github:mjt-engine/observe",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

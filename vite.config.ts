@@ -8,6 +8,7 @@ function emitDtsPlugin() {
       exec("tsc", (err, stdout, stderr) => {
         if (err) {
           console.error("Type generation failed:", stderr);
+          console.error(stdout);
         } else {
           console.log("Type declarations generated.");
         }
