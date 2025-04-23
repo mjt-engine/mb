@@ -9,7 +9,7 @@ export declare const Channel: <T>({ posterProducer, listenerProducer, }: {
         signal?: AbortSignal;
         reply: string;
     }>) => void;
-    listenOn: (subject: string | RegExp, options?: Partial<{
+    listenOn: (subject: string, options?: Partial<{
         callback?: (data: T, meta: {
             finished: boolean;
         }) => T | void | AsyncIterable<T> | Promise<void> | Promise<T>;

@@ -4,12 +4,12 @@ export type Emitter<T = unknown> = {
     on: (event: string, listener: (...args: T[]) => void | Promise<void>) => void;
     off: (event: string, listener: (...args: T[]) => void | Promise<void>) => void;
 };
-export declare const EmitterChannel: <T>(emitter: Emitter<ChannelMessage<T>>, eventName?: string) => {
+export declare const EmitterChannel: <T>(emitter: Emitter<ChannelMessage<T>>) => {
     postOn: (subject: string, data: T, options?: Partial<{
         signal?: AbortSignal;
         reply: string;
     }>) => void;
-    listenOn: (subject: string | RegExp, options?: Partial<{
+    listenOn: (subject: string, options?: Partial<{
         callback?: ((data: T, meta: {
             finished: boolean;
         }) => void | Promise<void> | T | AsyncIterable<T> | Promise<T>) | undefined;

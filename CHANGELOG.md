@@ -2,6 +2,7 @@
 
 
 ## 2025-04-22
+- add selector to emitter Channel Emitter interface ([5f8e595](https://github.com/mjt-engine/mb/commit/5f8e595932cdcb0dc965e01e1ab05d4764733a5a)) by Matt Taylor
 - abort caller immediately on calback for _once_ ([d1da646](https://github.com/mjt-engine/mb/commit/d1da646c89ef4fac345655b340b0d233cb94f28a)) by Matt Taylor
 - added better signal logic for aborted signals ([9d4282c](https://github.com/mjt-engine/mb/commit/9d4282cb1560c94face088d2d81ffa464d9b49f5)) by Matt Taylor
 - describe where timeouts happen ([cc6a53e](https://github.com/mjt-engine/mb/commit/cc6a53eaa579c81577c7887a780afc10d7b9436a)) by Matt Taylor
