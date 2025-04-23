@@ -1,6 +1,9 @@
 # Changelog
 
 
+## 2025-04-23
+- Added removeAllListners to Emitter type ([027d7ba](https://github.com/mjt-engine/mb/commit/027d7ba39d7468b8e21d9346d951c333056e45bf)) by Matt Taylor
+
 ## 2025-04-22
 - ConnectionMap as a PartialSubject ([7d4de0a](https://github.com/mjt-engine/mb/commit/7d4de0a46b454475b1ba1bba2f53b35b35751e10)) by Matt Taylor
 - add selector to emitter Channel Emitter interface ([5f8e595](https://github.com/mjt-engine/mb/commit/5f8e595932cdcb0dc965e01e1ab05d4764733a5a)) by Matt Taylor
