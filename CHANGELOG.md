@@ -2,6 +2,7 @@
 
 
 ## 2025-04-23
+- better pattern for obs span ([b980ec1](https://github.com/mjt-engine/mb/commit/b980ec1de3d041523c16870530bac7668bfb7e4f)) by Matt Taylor
 - remove debug logging ([368b0c1](https://github.com/mjt-engine/mb/commit/368b0c1b551b8d04ea94b6c356258abffcf8b971)) by Matt Taylor
 - debug mb obs ([8114583](https://github.com/mjt-engine/mb/commit/811458314bc4905c2ea1f572ce0d9bc55ca12eec)) by Matt Taylor
 - added observe to mb ([b0b3a31](https://github.com/mjt-engine/mb/commit/b0b3a31f89130ff35e5b995d9ee98f278ed4dd27)) by Matt Taylor
