@@ -57,10 +57,10 @@ export const MessageBus = async <CM extends ConnectionMap>({
     defaultTimeoutMs: number;
   }>;
 }): Promise<MessageBus<CM>> => {
-  let span = obs.span("MessageBus");
+  const rootSpan = obs.span("MessageBus");
   const { defaultTimeoutMs = 60 * 1000, signal } = options;
   const entries = Object.entries(subscribers);
-  span.log("connect: subscribers: ", entries);
+  rootSpan.log("connect: subscribers: ", entries);
   for (const [subject, connectionListener] of entries) {
     if (isUndefined(connectionListener)) {
       continue;
@@ -84,7 +84,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
         signal?: AbortSignal;
       }> = {}
     ) => {
-      span = span.span("requestMany");
+      const requestManySpan = rootSpan.span("requestMany");
       type MsgRequest = CM[S]["request"];
       type MsgResponse = CM[S]["response"];
       const { timeoutMs = 60 * 1000, headers, callback } = options;
@@ -93,7 +93,9 @@ export const MessageBus = async <CM extends ConnectionMap>({
         meta: { headers },
       } satisfies Msg<MsgRequest>);
 
-      span = span.span("channel requestMany").log("start requestMany", subject);
+      const channelRequestManySpan = requestManySpan
+        .span("channel requestMany")
+        .log("start requestMany", subject);
       const channelItr = await channel.requestMany(
         subject as string,
         requestData,
@@ -109,7 +111,8 @@ export const MessageBus = async <CM extends ConnectionMap>({
           Bytes.msgPackToObject<Msg<MsgResponse>>(respChannelData);
         await callback?.(responseObject);
       }
-      span.end();
+      channelRequestManySpan.end();
+      requestManySpan.end();
     },
 
     request: async <S extends keyof CM>(
@@ -120,7 +123,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
         headers?: Record<keyof CM[S]["headers"], string>;
       }> = {}
     ): Promise<Msg<CM[S]["response"]>> => {
-      span = span.span("request").log("subject", subject);
+      const requestSpan = rootSpan.span("request").log("subject", subject);
       type MsgRequest = CM[S]["request"];
       type MsgResponse = CM[S]["response"];
       const { timeoutMs = defaultTimeoutMs, headers } = options;
@@ -130,14 +133,14 @@ export const MessageBus = async <CM extends ConnectionMap>({
         meta: { headers },
       } satisfies Msg<MsgRequest>);
 
-      const innerSpan = span
+      const channelRequestSpan = requestSpan
         .span("channel request")
         .log("requestData", requestData);
       const resp = await channel.request(subject as string, requestData, {
         timeoutMs,
       });
-      innerSpan.end();
-      span.end();
+      channelRequestSpan.end();
+      requestSpan.end();
 
       return Bytes.msgPackToObject<Msg<MsgResponse>>(resp);
     },
@@ -154,7 +157,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
         data: request,
         meta: { headers },
       } satisfies Msg<MsgRequest>);
-      span.span("publish").log("subject", subject);
+      rootSpan.span("publish").log("subject", subject);
 
       return channel.postOn(subject as string, channelData);
     },
@@ -166,7 +169,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
         signal?: AbortSignal;
       }> = {}
     ): Promise<void> => {
-      span.span("subscribe").log("subject", subject);
+      rootSpan.span("subscribe").log("subject", subject);
       return connectConnectionListenerToSubject({
         channel,
         subject: subject as string,
