@@ -2,6 +2,7 @@
 
 
 ## 2025-04-23
+- bump observe dep ([09ce2d7](https://github.com/mjt-engine/mb/commit/09ce2d70160781d4e12e62c2bcef109f30423d50)) by Matt Taylor
 - better pattern for obs span ([b980ec1](https://github.com/mjt-engine/mb/commit/b980ec1de3d041523c16870530bac7668bfb7e4f)) by Matt Taylor
 - remove debug logging ([368b0c1](https://github.com/mjt-engine/mb/commit/368b0c1b551b8d04ea94b6c356258abffcf8b971)) by Matt Taylor
 - debug mb obs ([8114583](https://github.com/mjt-engine/mb/commit/811458314bc4905c2ea1f572ce0d9bc55ca12eec)) by Matt Taylor
