@@ -19,10 +19,10 @@ export const Channel = <T>({
       }> = {}
     ): void => {
       const { signal, reply } = options;
-      posterProducer(signal)({ subject, data, reply });
+      posterProducer(signal)(subject)({ subject, data, reply });
     },
     listenOn: function (
-      subject: string | RegExp,
+      subject: string,
       options: Partial<{
         callback?: (
           data: T,
@@ -40,49 +40,53 @@ export const Channel = <T>({
       signal?.addEventListener("abort", () => {
         abortCotroller.abort();
       });
-      const itr = listenerProducer(abortCotroller.signal)(async (msg) => {
-        if (
-          typeof subject === "string"
-            ? msg.subject === subject
-            : subject.test(msg.subject)
-        ) {
-          if (once) {
-            abortCotroller.abort();
-          }
-          const resp = await callback?.(msg.data, {
-            finished: msg.finished ?? false,
-          });
-          if (msg.reply && resp) {
-            if (!isAsyncIterable(resp)) {
-              posterProducer(abortCotroller.signal)({
-                subject: msg.reply,
-                data: resp,
-                finished: true,
-              });
-            } else {
-              (async () => {
-                for await (const item of resp) {
-                  posterProducer(abortCotroller.signal)({
-                    subject: msg.reply!,
-                    data: item!,
-                  });
-                }
+      const itr = listenerProducer(abortCotroller.signal)(subject)(
+        async (msg) => {
+          if (
+            msg.subject === subject
+            // typeof subject === "string"
+            // ? msg.subject === subject
+            // : subject.test(msg.subject)
+          ) {
+            if (once) {
+              abortCotroller.abort();
+            }
+            const resp = await callback?.(msg.data, {
+              finished: msg.finished ?? false,
+            });
 
-                // Send a finished/undefined data message to indicate completion
-                posterProducer(abortCotroller.signal)({
-                  subject: msg.reply!,
-                  data: undefined!,
+            if (msg.reply && resp) {
+              if (!isAsyncIterable(resp)) {
+                posterProducer(abortCotroller.signal)(msg.reply)({
+                  subject: msg.reply,
+                  data: resp,
                   finished: true,
                 });
-              })();
+              } else {
+                (async () => {
+                  for await (const item of resp) {
+                    posterProducer(abortCotroller.signal)(msg.reply!)({
+                      subject: msg.reply!,
+                      data: item!,
+                    });
+                  }
+
+                  // Send a finished/undefined data message to indicate completion
+                  posterProducer(abortCotroller.signal)(msg.reply!)({
+                    subject: msg.reply!,
+                    data: undefined!,
+                    finished: true,
+                  });
+                })();
+              }
+            }
+            if (resp && !isAsyncIterable(resp)) {
+              return { ...msg, data: resp };
             }
           }
-          if (resp && !isAsyncIterable(resp)) {
-            return { ...msg, data: resp };
-          }
+          return msg;
         }
-        return msg;
-      });
+      );
       return (async function* () {
         for await (const msg of itr) {
           yield msg.data;

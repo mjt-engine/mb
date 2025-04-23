@@ -18,7 +18,6 @@ describe("Mbs", () => {
       },
     });
     const resp = await bus.request("test", "hello");
-    console.log("resp", resp);
     expect(resp.data).toEqual(expected);
   });
   test("subscribe", async () => {
@@ -33,7 +32,6 @@ describe("Mbs", () => {
       return `${request} world`;
     });
     const resp = await bus.request("test-sub", "hello");
-    console.log("resp", resp);
     expect(resp.data).toEqual(expected);
   });
 });

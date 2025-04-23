@@ -1,5 +1,7 @@
 export type AbortableListener<T> = (
   signal?: AbortSignal
 ) => (
-  callback?: (value: T) => T | void | Promise<void> | Promise<T>
+  selector: string
+) => (
+  callback: (value: T) => T | void | Promise<void> | Promise<T>
 ) => AsyncIterable<T>;

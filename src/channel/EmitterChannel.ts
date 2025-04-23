@@ -12,11 +12,11 @@ export type Emitter<T = unknown> = {
 };
 
 export const EmitterChannel = <T>(
-  emitter: Emitter<ChannelMessage<T>>,
-  eventName = "channel_message"
+  emitter: Emitter<ChannelMessage<T>>
+  // eventName = "channel_message"
 ) => {
   return Channel<T>({
-    posterProducer: (signal) => {
+    posterProducer: (signal) => (eventName) => {
       return (msg) => {
         if (signal?.aborted) {
           return;
@@ -24,7 +24,7 @@ export const EmitterChannel = <T>(
         emitter.emit(eventName, msg);
       };
     },
-    listenerProducer: (signal) => {
+    listenerProducer: (signal) => (eventName) => {
       return (callback) => {
         const messageQueue: ChannelMessage<T>[] = [];
         const iterState = {
