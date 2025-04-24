@@ -2,6 +2,7 @@
 
 
 ## 2025-04-23
+- add binary serialization back, turns out it is faster ([5f5f835](https://github.com/mjt-engine/mb/commit/5f5f835d51dc9787340493697eb3be77bbcb09dd)) by Matt Taylor
 - fake bytes transform to test for performance ([bb9f8e0](https://github.com/mjt-engine/mb/commit/bb9f8e0f339852da8c500bc89093cb758aefaed8)) by Matt Taylor
 - bump observe dep ([09ce2d7](https://github.com/mjt-engine/mb/commit/09ce2d70160781d4e12e62c2bcef109f30423d50)) by Matt Taylor
 - better pattern for obs span ([b980ec1](https://github.com/mjt-engine/mb/commit/b980ec1de3d041523c16870530bac7668bfb7e4f)) by Matt Taylor
