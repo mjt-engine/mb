@@ -2,6 +2,7 @@
 
 
 ## 2025-04-23
+- bumped observe dep ([22f8c74](https://github.com/mjt-engine/mb/commit/22f8c7490c18c3283d0823766a3c6ef6006e6ade)) by Matt Taylor
 - add binary serialization back, turns out it is faster ([5f5f835](https://github.com/mjt-engine/mb/commit/5f5f835d51dc9787340493697eb3be77bbcb09dd)) by Matt Taylor
 - fake bytes transform to test for performance ([bb9f8e0](https://github.com/mjt-engine/mb/commit/bb9f8e0f339852da8c500bc89093cb758aefaed8)) by Matt Taylor
 - bump observe dep ([09ce2d7](https://github.com/mjt-engine/mb/commit/09ce2d70160781d4e12e62c2bcef109f30423d50)) by Matt Taylor
