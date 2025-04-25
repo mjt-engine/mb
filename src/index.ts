@@ -7,6 +7,7 @@ export * from "./mb/type/EventListener";
 export * from "./mb/type/EventMap";
 export * from "./mb/type/Msg";
 export * from "./mb/type/MsgMeta";
+export * from "./mb/type/Serializer";
 export * from "./mb/MessageBus";
 
 export * from "./channel/type/ChannelMessage";

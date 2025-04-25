@@ -5,7 +5,7 @@ import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { isErrorMsg, Msg } from "./type/Msg";
 import { PassThroughSerializer } from "./PassThroughSerializer";
-import { Serializer } from "./Serializer";
+import { Serializer } from "./type/Serializer";
 
 export const connectConnectionListenerToSubject = async <
   S extends keyof CM,

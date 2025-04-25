@@ -1,4 +1,4 @@
-import { Serializer } from "./Serializer";
+import { Serializer } from "./type/Serializer";
 
 export const PassThroughSerializer = <D = unknown>(): Serializer<D> => {
   return {

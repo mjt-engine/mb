@@ -7,7 +7,7 @@ import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
 import { PassThroughSerializer } from "./PassThroughSerializer";
-import { Serializer } from "./Serializer";
+import { Serializer } from "./type/Serializer";
 
 export type MessageBus<CM extends ConnectionMap, SerializedData> = {
   requestMany: <S extends keyof CM>(
