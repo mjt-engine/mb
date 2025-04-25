@@ -2,6 +2,7 @@
 
 
 ## 2025-04-25
+- default EmitterChannel to unknown type ([ac7ec3f](https://github.com/mjt-engine/mb/commit/ac7ec3f9ad4b0317d103cb5c97c73228645b1b8d)) by Matt Taylor
 - defulat to unknown SerializedData ([a84ed8c](https://github.com/mjt-engine/mb/commit/a84ed8c5e2e838113e06409f01e9be4afc813aca)) by Matt Taylor
 - exported Serializer type ([970c09d](https://github.com/mjt-engine/mb/commit/970c09d6c4ab254aad3fada61d007a144b80ae05)) by Matt Taylor
 - added optional serialization ([0c19649](https://github.com/mjt-engine/mb/commit/0c1964942ce277ea54a4e054b340bc2813cb8e5c)) by Matt Taylor
