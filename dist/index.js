@@ -101,16 +101,15 @@ const ae = (e) => {
     timer: (a) => {
       const l = r.get(a) ?? w(e);
       r.set(a, l);
-      const c = q();
-      return l.push(c), c;
+      const u = q();
+      return l.push(u), u;
     },
     increment: (a, l = 1) => {
-      const c = s.get(a) ?? 0;
-      s.set(a, c + l);
+      const u = s.get(a) ?? 0;
+      s.set(a, u + l);
     },
-    gauge: (a, l = 1) => {
-      const c = n.get(a) ?? 0;
-      n.set(a, c + l);
+    gauge: (a, l = 0) => {
+      n.set(a, l);
     },
     getCounters: () => new Map(s),
     getCounter: (a) => s.get(a) ?? 0,
@@ -135,16 +134,16 @@ const ae = (e) => {
       i.getStats(o).count(), i.getStats(o).time(), i.log({ traceId: o, message: "start", extra: a });
     },
     getStats: (o) => r.get(o, () => _(n)),
-    log: ({ traceId: o, message: a, timestamp: l = s.now(), extra: c = [] }) => {
-      const u = {
+    log: ({ traceId: o, message: a, timestamp: l = s.now(), extra: u = [] }) => {
+      const c = {
         traceId: o,
         message: a,
         timestamp: l,
-        extra: c
-      }, f = Y(e)(u);
+        extra: u
+      }, f = Y(e)(c);
       if (!f)
         return;
-      const d = Z(f)(u);
+      const d = Z(f)(c);
       t(
         `${d.timestamp} ${d.traceId}: ${d.message}`,
         ...d.extra ?? []
@@ -225,13 +224,13 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   i("connectConnectionListenerToSubject: subject: ", t);
   for await (const a of e.listenOn(t, {
     callback: async (l) => {
-      const c = n.deserialize(l), { data: u, meta: f } = c;
-      if (N(c))
-        throw console.error("Error in message: ", c), new Error(
-          `connectConnectionListenerToSubject: Unexpected error in request message: ${c?.data?.message}`
+      const u = n.deserialize(l), { data: c, meta: f } = u;
+      if (N(u))
+        throw console.error("Error in message: ", u), new Error(
+          `connectConnectionListenerToSubject: Unexpected error in request message: ${u?.data?.message}`
         );
       try {
-        const d = await s(u, {
+        const d = await s(c, {
           headers: f?.headers,
           signal: o
         });
@@ -267,21 +266,21 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
     serializer: a = se()
   } = s, l = Object.entries(t);
   r.log("connect: subscribers: ", l);
-  for (const [c, u] of l)
-    P(u) || M({
+  for (const [u, c] of l)
+    P(c) || M({
       serializer: a,
       channel: e,
-      subject: c,
-      connectionListener: u,
+      subject: u,
+      connectionListener: c,
       options: s
     });
   return {
-    requestMany: async (c, u, f = {}) => {
+    requestMany: async (u, c, f = {}) => {
       const d = r.span("requestMany"), { timeoutMs: g = 60 * 1e3, headers: m, callback: p } = f, b = a.serialize({
-        data: u,
+        data: c,
         meta: { headers: m }
-      }), h = d.span("channel requestMany").log("start requestMany", c), U = await e.requestMany(
-        c,
+      }), h = d.span("channel requestMany").log("start requestMany", u), U = await e.requestMany(
+        u,
         b,
         {
           timeoutMs: g
@@ -295,27 +294,27 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
       }
       h.end(), d.end();
     },
-    request: async (c, u, f = {}) => {
-      const d = r.span("request").log("subject", c), { timeoutMs: g = i, headers: m } = f, p = a.serialize({
-        data: u,
+    request: async (u, c, f = {}) => {
+      const d = r.span("request").log("subject", u), { timeoutMs: g = i, headers: m } = f, p = a.serialize({
+        data: c,
         meta: { headers: m }
-      }), b = d.span("channel request").log("requestData", p), h = await e.request(c, p, {
+      }), b = d.span("channel request").log("requestData", p), h = await e.request(u, p, {
         timeoutMs: g
       });
       return b.end(), d.end(), a.deserialize(h);
     },
-    publish: async (c, u, f = {}) => {
+    publish: async (u, c, f = {}) => {
       const { headers: d } = f, g = a.serialize({
-        data: u,
+        data: c,
         meta: { headers: d }
       });
-      return r.span("publish").log("subject", c), e.postOn(c, g);
+      return r.span("publish").log("subject", u), e.postOn(u, g);
     },
-    subscribe: async (c, u, f = {}) => (r.span("subscribe").log("subject", c), M({
+    subscribe: async (u, c, f = {}) => (r.span("subscribe").log("subject", u), M({
       channel: e,
       serializer: a,
-      subject: c,
-      connectionListener: u,
+      subject: u,
+      connectionListener: c,
       options: f
     }))
   };
@@ -335,57 +334,57 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
       i?.addEventListener("abort", () => {
         l.abort();
       });
-      const c = t(l.signal)(n)(
-        async (u) => {
-          if (u.subject === n) {
+      const u = t(l.signal)(n)(
+        async (c) => {
+          if (c.subject === n) {
             o && l.abort();
-            const f = await a?.(u.data, {
-              finished: u.finished ?? !1
+            const f = await a?.(c.data, {
+              finished: c.finished ?? !1
             });
-            if (u.reply && f && (x(f) ? (async () => {
+            if (c.reply && f && (x(f) ? (async () => {
               for await (const d of f)
-                e(l.signal)(u.reply)({
-                  subject: u.reply,
+                e(l.signal)(c.reply)({
+                  subject: c.reply,
                   data: d
                 });
-              e(l.signal)(u.reply)({
-                subject: u.reply,
+              e(l.signal)(c.reply)({
+                subject: c.reply,
                 data: void 0,
                 finished: !0
               });
-            })() : e(l.signal)(u.reply)({
-              subject: u.reply,
+            })() : e(l.signal)(c.reply)({
+              subject: c.reply,
               data: f,
               finished: !0
             })), f && !x(f))
-              return { ...u, data: f };
+              return { ...c, data: f };
           }
-          return u;
+          return c;
         }
       );
       return async function* () {
-        for await (const u of c)
-          yield u.data;
+        for await (const c of u)
+          yield c.data;
       }();
     },
     request: async (n, r, i = {}) => {
       const { signal: o, timeoutMs: a } = i, l = `response-${Date.now()}-${crypto.randomUUID()}`;
-      return new Promise((c, u) => {
-        o?.aborted && u(
+      return new Promise((u, c) => {
+        o?.aborted && c(
           new Error(`request: Signal is already aborted for ${n}`)
         ), o?.addEventListener("abort", () => {
-          u(new Error("Request aborted"));
+          c(new Error("Request aborted"));
         });
         let f;
         a && (f = setTimeout(() => {
-          u(
+          c(
             new Error(
               `request: Request timed out after ${a}ms for ${n}`
             )
           );
         }, a)), s.listenOn(l, {
           callback: (d) => {
-            clearTimeout(f), c(d);
+            clearTimeout(f), u(d);
           },
           signal: o,
           once: !0
@@ -393,8 +392,8 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
       });
     },
     requestMany: async (n, r, i = {}) => {
-      const { signal: o, timeoutMs: a, callback: l } = i, c = `response-${Date.now()}-${crypto.randomUUID()}`;
-      return new Promise((u, f) => {
+      const { signal: o, timeoutMs: a, callback: l } = i, u = `response-${Date.now()}-${crypto.randomUUID()}`;
+      return new Promise((c, f) => {
         o?.aborted && f(
           new Error(`requestMany: Signal is already aborted for ${n}`)
         ), o?.addEventListener("abort", () => {
@@ -408,14 +407,14 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
             )
           );
         }, a));
-        const g = s.listenOn(c, {
+        const g = s.listenOn(u, {
           callback: (m, p) => {
             if (m !== void 0 && l?.(m), p.finished)
-              return clearTimeout(d), u(g);
+              return clearTimeout(d), c(g);
           },
           signal: o
         });
-        return s.postOn(n, r, { reply: c, signal: o }), g;
+        return s.postOn(n, r, { reply: u, signal: o }), g;
       });
     }
   };
@@ -434,8 +433,8 @@ const ce = (e) => re({
     }, o = async (a) => {
       if (t?.aborted)
         return;
-      const l = await n?.(a), c = S(l) ? l : a;
-      r.push(c), i.resolve?.();
+      const l = await n?.(a), u = S(l) ? l : a;
+      r.push(u), i.resolve?.();
     };
     return t?.addEventListener("abort", () => {
       e.off(s, o);
