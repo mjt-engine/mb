@@ -4,7 +4,7 @@ import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
 import { Serializer } from "./type/Serializer";
-export type MessageBus<CM extends ConnectionMap, SerializedData> = {
+export type MessageBus<CM extends ConnectionMap, SerializedData = unknown> = {
     requestMany: <S extends keyof CM>(subject: S, request: CM[S]["request"], options?: Partial<{
         headers?: Record<keyof CM[S]["headers"], string>;
         timeoutMs: number;
