@@ -5,12 +5,12 @@ const ae = (e) => {
     segments: t,
     subpath: n
   };
-}, k = (e) => "value" in e && e.value !== void 0, L = (e) => "error" in e && e.error !== void 0, oe = (e) => k(e) || L(e), j = (e) => {
+}, k = (e) => "value" in e && e.value !== void 0, L = (e) => "error" in e && e.error !== void 0, oe = (e) => k(e) || L(e), N = (e) => {
   const t = e;
   return typeof t == "object" && t !== null && "data" in t;
-}, N = (e) => {
+}, j = (e) => {
   const t = e;
-  return j(e) && t.meta?.hasError || !1;
+  return N(e) && t.meta?.hasError || !1;
 }, A = (e) => typeof e == "function", E = (e) => e == null || Number.isNaN(e), T = (e) => !E(e), J = (e) => A(e) ? e() : e, B = (e, t = {}) => {
   const { quiet: s = !1, def: n = void 0, onError: r } = t;
   try {
@@ -66,7 +66,7 @@ const ae = (e) => {
     if (X(s)(t))
       return s;
   return !1;
-}, Z = (e) => (t) => typeof e == "string" ? t : e.transform ? e.transform(t) : t, w = (e) => {
+}, Z = (e) => (t) => typeof e == "string" ? t : e.transform ? e.transform(t) : t, h = (e) => {
   const t = [], s = {
     length: 0,
     push: (n) => {
@@ -88,7 +88,7 @@ const ae = (e) => {
   return s;
 }, _ = (e = 100) => {
   let t = 0;
-  const s = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Map(), r = /* @__PURE__ */ new Map(), i = w(e), o = {
+  const s = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Map(), r = /* @__PURE__ */ new Map(), i = h(e), o = {
     clear: () => (t = 0, s.clear(), n.clear(), r.clear(), i.clear(), o),
     lastTime: () => i.last(),
     time: () => {
@@ -99,7 +99,7 @@ const ae = (e) => {
     },
     getTimes: () => i.get(),
     timer: (a) => {
-      const l = r.get(a) ?? w(e);
+      const l = r.get(a) ?? h(e);
       r.set(a, l);
       const u = q();
       return l.push(u), u;
@@ -119,7 +119,7 @@ const ae = (e) => {
       t += a;
     },
     getCount: () => t,
-    getTimers: (a) => (r.get(a) ?? w(e)).get()
+    getTimers: (a) => (r.get(a) ?? h(e)).get()
   };
   return o;
 }, ee = ({
@@ -225,7 +225,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
   for await (const a of e.listenOn(t, {
     callback: async (l) => {
       const u = n.deserialize(l), { data: c, meta: f } = u;
-      if (N(u))
+      if (j(u))
         throw console.error("Error in message: ", u), new Error(
           `connectConnectionListenerToSubject: Unexpected error in request message: ${u?.data?.message}`
         );
@@ -279,7 +279,7 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
       const d = r.span("requestMany"), { timeoutMs: g = 60 * 1e3, headers: m, callback: p } = f, b = a.serialize({
         data: c,
         meta: { headers: m }
-      }), h = d.span("channel requestMany").log("start requestMany", u), U = await e.requestMany(
+      }), w = d.span("channel requestMany").log("start requestMany", u), U = await e.requestMany(
         u,
         b,
         {
@@ -292,16 +292,16 @@ Extra: ${JSON.stringify(n, void 0, 2)}` : "";
         const v = a.deserialize(R);
         await p?.(v);
       }
-      h.end(), d.end();
+      w.end(), d.end();
     },
     request: async (u, c, f = {}) => {
       const d = r.span("request").log("subject", u), { timeoutMs: g = i, headers: m } = f, p = a.serialize({
         data: c,
         meta: { headers: m }
-      }), b = d.span("channel request").log("requestData", p), h = await e.request(u, p, {
+      }), b = d.span(u).log("requestData", p), w = await e.request(u, p, {
         timeoutMs: g
       });
-      return b.end(), d.end(), a.deserialize(h);
+      return b.end(), d.end(), a.deserialize(w);
     },
     publish: async (u, c, f = {}) => {
       const { headers: d } = f, g = a.serialize({
@@ -453,8 +453,8 @@ export {
   ce as EmitterChannel,
   ie as MessageBus,
   L as isError,
-  N as isErrorMsg,
-  j as isMsg,
+  j as isErrorMsg,
+  N as isMsg,
   k as isValue,
   oe as isValueOrError,
   ae as parseSubject

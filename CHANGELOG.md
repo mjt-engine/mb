@@ -2,6 +2,7 @@
 
 
 ## 2025-04-25
+- finer detailed request observation ([35abf66](https://github.com/mjt-engine/mb/commit/35abf6654131c52baa947cc766a1a554f325f5f7)) by Matt Taylor
 - bump observe dep ([45f9ac1](https://github.com/mjt-engine/mb/commit/45f9ac1236a2f870a481c2f394f2e49278198ba6)) by Matt Taylor
 - bump observe dep ([5034d63](https://github.com/mjt-engine/mb/commit/5034d639210f80b017b28e7902e7d39751cf5b3d)) by Matt Taylor
 - default ChannelMessage to unknown data type ([855b334](https://github.com/mjt-engine/mb/commit/855b334b21f640f976992bfe3808c85d49d07151)) by Matt Taylor
