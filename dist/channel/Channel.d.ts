@@ -1,6 +1,7 @@
 import { AbortablePoster } from "./type/AbortablePoster";
 import { AbortableListener } from "./type/AbortableListener";
 import { ChannelMessage } from "./type/ChannelMessage";
+import { Observe } from "@mjt-engine/observe";
 export type Channel<T> = {
     postOn: (subject: string, data: T, options?: Partial<{
         signal?: AbortSignal;
@@ -23,7 +24,8 @@ export type Channel<T> = {
         callback?: (responseData: T) => void;
     }>) => Promise<AsyncIterable<T>>;
 };
-export declare const Channel: <T>({ posterProducer, listenerProducer, }: {
+export declare const Channel: <T>({ posterProducer, listenerProducer, obs, }: {
     posterProducer: AbortablePoster<ChannelMessage<T>>;
     listenerProducer: AbortableListener<ChannelMessage<T>>;
+    obs: Observe;
 }) => Channel<T>;
