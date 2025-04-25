@@ -25,13 +25,13 @@ const ae = (e) => {
 }, { isDefined: $, isUndefined: P, safe: D } = G, I = (e) => e == null || Number.isNaN(e), V = (e) => !I(e), K = {
   isDefined: V,
   isUndefined: I
-}, { isDefined: w, isUndefined: Q } = K, F = (e, t, r) => {
+}, { isDefined: h, isUndefined: Q } = K, F = (e, t, r) => {
   if (Q(e))
     return;
   const s = t.get(e);
-  if (w(s))
+  if (h(s))
     return s;
-  if (w(r)) {
+  if (h(r)) {
     const n = r();
     return t.set(e, n), n;
   }
@@ -66,7 +66,7 @@ const ae = (e) => {
     if (X(r)(t))
       return r;
   return !1;
-}, Z = (e) => (t) => typeof e == "string" ? t : e.transform ? e.transform(t) : t, b = (e) => {
+}, Z = (e) => (t) => typeof e == "string" ? t : e.transform ? e.transform(t) : t, w = (e) => {
   const t = [], r = {
     length: 0,
     push: (s) => {
@@ -82,24 +82,24 @@ const ae = (e) => {
 }, q = () => {
   let e = performance.now(), t;
   const r = {
-    end: () => (w(t) || (t = performance.now()), r),
+    end: () => (h(t) || (t = performance.now()), r),
     getDuration: () => (t ?? performance.now()) - e
   };
   return r;
 }, _ = (e = 100) => {
   let t = 0;
-  const r = /* @__PURE__ */ new Map(), s = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Map(), i = b(e), c = {
+  const r = /* @__PURE__ */ new Map(), s = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Map(), i = w(e), c = {
     clear: () => (t = 0, r.clear(), s.clear(), n.clear(), i.clear(), c),
     lastTime: () => i.last(),
     time: () => {
       const a = c.lastTime();
-      w(a) && a.end();
+      h(a) && a.end();
       const l = q();
       return i.push(l), l;
     },
     getTimes: () => i.get(),
     timer: (a) => {
-      const l = n.get(a) ?? b(e);
+      const l = n.get(a) ?? w(e);
       n.set(a, l);
       const o = q();
       return l.push(o), o;
@@ -119,7 +119,7 @@ const ae = (e) => {
       t += a;
     },
     getCount: () => t,
-    getTimers: (a) => (n.get(a) ?? b(e)).get()
+    getTimers: (a) => (n.get(a) ?? w(e)).get()
   };
   return c;
 }, ee = ({
@@ -279,7 +279,7 @@ Extra: ${JSON.stringify(s, void 0, 2)}` : "";
       const u = n.span("requestMany"), { timeoutMs: d = 60 * 1e3, headers: p, callback: m } = g, y = a.serialize({
         data: f,
         meta: { headers: p }
-      }), h = u.span("channel requestMany").log("start requestMany", o), U = await e.requestMany(
+      }), b = u.span("channel requestMany").log("start requestMany", o), U = await e.requestMany(
         o,
         y,
         {
@@ -292,16 +292,16 @@ Extra: ${JSON.stringify(s, void 0, 2)}` : "";
         const v = a.deserialize(R);
         await m?.(v);
       }
-      h.end(), u.end();
+      b.end(), u.end();
     },
     request: async (o, f, g = {}) => {
       const u = n.span("request").log("subject", o), { timeoutMs: d = i, headers: p } = g, m = a.serialize({
         data: f,
         meta: { headers: p }
-      }), y = u.span(`channel:request:${o}`), h = await e.request(o, m, {
+      }), y = u.span(`channel:request:${o}`), b = await e.request(o, m, {
         timeoutMs: d
       });
-      return y.end(), u.end(), a.deserialize(h);
+      return y.end(), u.end(), a.deserialize(b);
     },
     publish: async (o, f, g = {}) => {
       const { headers: u } = g, d = a.serialize({
@@ -325,11 +325,11 @@ Extra: ${JSON.stringify(s, void 0, 2)}` : "";
 }) => {
   const s = {
     postOn: (n, i, c = {}) => {
-      const a = r.span(`postOn:${n}`), { signal: l, reply: o } = c;
+      const a = r.span("postOn"), { signal: l, reply: o } = c;
       e(l)(n)({ subject: n, data: i, reply: o }), a.end();
     },
     listenOn: function(n, i = {}) {
-      const c = r.span(`listenOn:${n}`), { signal: a, once: l, callback: o } = i, f = new AbortController();
+      const c = r.span("listenOn"), { signal: a, once: l, callback: o } = i, f = new AbortController();
       if (a?.aborted)
         throw new Error(`listenOn: Signal is already aborted for ${n}`);
       a?.addEventListener("abort", () => {
@@ -409,8 +409,8 @@ Extra: ${JSON.stringify(s, void 0, 2)}` : "";
           );
         }, o));
         const m = s.listenOn(g, {
-          callback: (y, h) => {
-            if (y !== void 0 && f?.(y), h.finished)
+          callback: (y, b) => {
+            if (y !== void 0 && f?.(y), b.finished)
               return clearTimeout(p), a.end(), u(m);
           },
           signal: l

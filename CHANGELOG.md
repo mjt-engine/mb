@@ -2,6 +2,7 @@
 
 
 ## 2025-04-25
+- only include subjec ton span for request/Many ([b64795f](https://github.com/mjt-engine/mb/commit/b64795f33570a14973c0a11a220803cee391eb7f)) by Matt Taylor
 - added observation of Channel ([0010ff9](https://github.com/mjt-engine/mb/commit/0010ff961b0d8cd272d426980a81517b28c54b0e)) by Matt Taylor
 - finer detailed request observation ([35abf66](https://github.com/mjt-engine/mb/commit/35abf6654131c52baa947cc766a1a554f325f5f7)) by Matt Taylor
 - bump observe dep ([45f9ac1](https://github.com/mjt-engine/mb/commit/45f9ac1236a2f870a481c2f394f2e49278198ba6)) by Matt Taylor
