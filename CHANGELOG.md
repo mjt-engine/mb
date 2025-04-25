@@ -2,6 +2,7 @@
 
 
 ## 2025-04-25
+- bump observe dep ([5034d63](https://github.com/mjt-engine/mb/commit/5034d639210f80b017b28e7902e7d39751cf5b3d)) by Matt Taylor
 - default ChannelMessage to unknown data type ([855b334](https://github.com/mjt-engine/mb/commit/855b334b21f640f976992bfe3808c85d49d07151)) by Matt Taylor
 - default EmitterChannel to unknown type ([ac7ec3f](https://github.com/mjt-engine/mb/commit/ac7ec3f9ad4b0317d103cb5c97c73228645b1b8d)) by Matt Taylor
 - defulat to unknown SerializedData ([a84ed8c](https://github.com/mjt-engine/mb/commit/a84ed8c5e2e838113e06409f01e9be4afc813aca)) by Matt Taylor

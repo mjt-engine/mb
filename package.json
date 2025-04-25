@@ -1,6 +1,6 @@
 {
   "name": "@mjt-engine/mb",
-  "version": "2025.4.25-1048",
+  "version": "2025.4.25-1201",
   "sideEffects": false,
   "description": "Message Bus module",
   "main": "./dist/index.js",
