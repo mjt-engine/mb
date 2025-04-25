@@ -1,12 +1,11 @@
-// import { Bytes } from "@mjt-engine/byte";
 import { isUndefined } from "@mjt-engine/object";
 import { Observe } from "@mjt-engine/observe";
 import { Channel } from "../channel/Channel";
 import { connectConnectionListenerToSubject } from "./connectConnectionListenerToSubject";
+import { PassThroughSerializer } from "./PassThroughSerializer";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
-import { PassThroughSerializer } from "./PassThroughSerializer";
 import { Serializer } from "./type/Serializer";
 
 export type MessageBus<CM extends ConnectionMap, SerializedData = unknown> = {

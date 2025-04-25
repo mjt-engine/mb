@@ -1,10 +1,8 @@
-// import { Bytes } from "@mjt-engine/byte";
 import { ErrorDetail, Errors } from "@mjt-engine/error";
 import { Channel } from "../channel/Channel";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { isErrorMsg, Msg } from "./type/Msg";
-import { PassThroughSerializer } from "./PassThroughSerializer";
 import { Serializer } from "./type/Serializer";
 
 export const connectConnectionListenerToSubject = async <

@@ -3,9 +3,8 @@ import { Channel } from "./Channel";
 import { ChannelMessage } from "./type/ChannelMessage";
 import { Emitter } from "./type/Emitter";
 
-export const EmitterChannel = <T>(
+export const EmitterChannel = <T = unknown>(
   emitter: Emitter<ChannelMessage<T>>
-  // eventName = "channel_message"
 ) => {
   return Channel<T>({
     posterProducer: (signal) => (eventName) => {
