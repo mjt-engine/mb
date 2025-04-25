@@ -1,4 +1,4 @@
-import { Bytes } from "@mjt-engine/byte";
+// import { Bytes } from "@mjt-engine/byte";
 import { isUndefined } from "@mjt-engine/object";
 import { Observe } from "@mjt-engine/observe";
 import { Channel } from "../channel/Channel";
@@ -6,8 +6,10 @@ import { connectConnectionListenerToSubject } from "./connectConnectionListenerT
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
+import { PassThroughSerializer } from "./PassThroughSerializer";
+import { Serializer } from "./Serializer";
 
-export type MessageBus<CM extends ConnectionMap> = {
+export type MessageBus<CM extends ConnectionMap, SerializedData> = {
   requestMany: <S extends keyof CM>(
     subject: S,
     request: CM[S]["request"],
@@ -43,22 +45,27 @@ export type MessageBus<CM extends ConnectionMap> = {
   ) => Promise<void>;
 };
 
-export const MessageBus = async <CM extends ConnectionMap>({
+export const MessageBus = async <CM extends ConnectionMap, SerializedData>({
   channel,
   subscribers = {},
   options = {},
   obs = Observe(),
 }: {
-  channel: ReturnType<typeof Channel<Uint8Array>>;
+  channel: Channel<SerializedData>;
   subscribers?: Partial<{ [k in keyof CM]: ConnectionListener<CM, k> }>;
   obs?: Observe;
   options?: Partial<{
     signal?: AbortSignal;
     defaultTimeoutMs: number;
+    serializer: Serializer<SerializedData>;
   }>;
-}): Promise<MessageBus<CM>> => {
+}): Promise<MessageBus<CM, SerializedData>> => {
   const rootSpan = obs.span("MessageBus");
-  const { defaultTimeoutMs = 60 * 1000, signal } = options;
+  const {
+    defaultTimeoutMs = 60 * 1000,
+    signal,
+    serializer = PassThroughSerializer<SerializedData>(),
+  } = options;
   const entries = Object.entries(subscribers);
   rootSpan.log("connect: subscribers: ", entries);
   for (const [subject, connectionListener] of entries) {
@@ -66,6 +73,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
       continue;
     }
     connectConnectionListenerToSubject({
+      serializer,
       channel,
       subject,
       connectionListener,
@@ -89,16 +97,10 @@ export const MessageBus = async <CM extends ConnectionMap>({
       type MsgResponse = CM[S]["response"];
       const { timeoutMs = 60 * 1000, headers, callback } = options;
 
-      // const Bytes = Serializer<Uint8Array, Msg<Request>>();
-      const requestData = Bytes.toMsgPack({
+      const requestData = serializer.serialize({
         data: request,
         meta: { headers },
       } satisfies Msg<MsgRequest>);
-
-      // const requestData = serialize({
-      //   data: request,
-      //   meta: { headers },
-      // }) as Msg<MsgRequest>;
 
       const channelRequestManySpan = requestManySpan
         .span("channel requestMany")
@@ -115,7 +117,8 @@ export const MessageBus = async <CM extends ConnectionMap>({
           return;
         }
         const responseObject =
-          Bytes.msgPackToObject<Msg<MsgResponse>>(respChannelData);
+          serializer.deserialize<Msg<MsgResponse>>(respChannelData);
+
         // const responseObject= deserialize(respChannelData);
         await callback?.(responseObject);
       }
@@ -136,7 +139,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
       type MsgResponse = CM[S]["response"];
       const { timeoutMs = defaultTimeoutMs, headers } = options;
 
-      const requestData = Bytes.toMsgPack({
+      const requestData = serializer.serialize({
         data: request,
         meta: { headers },
       } satisfies Msg<MsgRequest>);
@@ -150,7 +153,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
       channelRequestSpan.end();
       requestSpan.end();
 
-      return Bytes.msgPackToObject<Msg<MsgResponse>>(resp);
+      return serializer.deserialize<Msg<MsgResponse>>(resp);
     },
     publish: async <S extends keyof CM>(
       subject: S,
@@ -162,7 +165,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
       type MsgRequest = CM[S]["request"];
       const { headers } = options;
 
-      const channelData = Bytes.toMsgPack({
+      const channelData = serializer.serialize({
         data: request,
         meta: { headers },
       } satisfies Msg<MsgRequest>);
@@ -181,6 +184,7 @@ export const MessageBus = async <CM extends ConnectionMap>({
       rootSpan.span("subscribe").log("subject", subject);
       return connectConnectionListenerToSubject({
         channel,
+        serializer,
         subject: subject as string,
         connectionListener,
         options,
