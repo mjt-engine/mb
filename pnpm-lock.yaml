@@ -19,7 +19,7 @@ importers:
         version: https://codeload.github.com/mjt-engine/object/tar.gz/75263a186b55c31764efb3a1bc075285f971946b
       '@mjt-engine/observe':
         specifier: github:mjt-engine/observe
-        version: https://codeload.github.com/mjt-engine/observe/tar.gz/710f7018d0d8223272e066f9ef243c35804bcabc
+        version: https://codeload.github.com/mjt-engine/observe/tar.gz/9b0b9c0d9c8bf8c581209a5e8a93b7b4bea8753b
       vite-tsconfig-paths:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.8.3)(vite@6.3.3(@types/node@22.15.2)(yaml@2.7.1))
@@ -221,9 +221,9 @@ packages:
     resolution: {tarball: https://codeload.github.com/mjt-engine/object/tar.gz/75263a186b55c31764efb3a1bc075285f971946b}
     version: 2025.1.19-1221
 
-  '@mjt-engine/observe@https://codeload.github.com/mjt-engine/observe/tar.gz/710f7018d0d8223272e066f9ef243c35804bcabc':
-    resolution: {tarball: https://codeload.github.com/mjt-engine/observe/tar.gz/710f7018d0d8223272e066f9ef243c35804bcabc}
-    version: 2025.4.25-1200
+  '@mjt-engine/observe@https://codeload.github.com/mjt-engine/observe/tar.gz/9b0b9c0d9c8bf8c581209a5e8a93b7b4bea8753b':
+    resolution: {tarball: https://codeload.github.com/mjt-engine/observe/tar.gz/9b0b9c0d9c8bf8c581209a5e8a93b7b4bea8753b}
+    version: 2025.4.25-1208
 
   '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
     resolution: {integrity: sha512-QZHtlVgbAdy2zAqNA9Gu1UpIuI8Xvsd1v8ic6B2pZmeFnFcMWiPLfWXh7TVw4eGEZ/C9TH281KwhVoeQUKbyjw==}
@@ -896,7 +896,7 @@ snapshots:
       '@sinclair/typebox': 0.33.22
       json-stable-stringify: 1.3.0
 
-  '@mjt-engine/observe@https://codeload.github.com/mjt-engine/observe/tar.gz/710f7018d0d8223272e066f9ef243c35804bcabc':
+  '@mjt-engine/observe@https://codeload.github.com/mjt-engine/observe/tar.gz/9b0b9c0d9c8bf8c581209a5e8a93b7b4bea8753b':
     dependencies:
       '@mjt-engine/cache': https://codeload.github.com/mjt-engine/cache/tar.gz/1f7dba33f49bce1a232d2c147441579f026512a5
       '@mjt-engine/error': https://codeload.github.com/mjt-engine/error/tar.gz/9b170db171d86c3a1a0afdc6c7de205259a3b564
