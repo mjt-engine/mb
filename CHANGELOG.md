@@ -2,6 +2,7 @@
 
 
 ## 2025-04-25
+- exported Serializer type ([970c09d](https://github.com/mjt-engine/mb/commit/970c09d6c4ab254aad3fada61d007a144b80ae05)) by Matt Taylor
 - added optional serialization ([0c19649](https://github.com/mjt-engine/mb/commit/0c1964942ce277ea54a4e054b340bc2813cb8e5c)) by Matt Taylor
 
 ## 2025-04-23
