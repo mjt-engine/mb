@@ -1,6 +1,9 @@
 # Changelog
 
 
+## 2025-04-25
+- added optional serialization ([0c19649](https://github.com/mjt-engine/mb/commit/0c1964942ce277ea54a4e054b340bc2813cb8e5c)) by Matt Taylor
+
 ## 2025-04-23
 - bumped observe dep ([22f8c74](https://github.com/mjt-engine/mb/commit/22f8c7490c18c3283d0823766a3c6ef6006e6ade)) by Matt Taylor
 - add binary serialization back, turns out it is faster ([5f5f835](https://github.com/mjt-engine/mb/commit/5f5f835d51dc9787340493697eb3be77bbcb09dd)) by Matt Taylor

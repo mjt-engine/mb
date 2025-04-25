@@ -3,7 +3,8 @@ import { Channel } from "../channel/Channel";
 import type { ConnectionListener } from "./type/ConnectionListener";
 import type { ConnectionMap } from "./type/ConnectionMap";
 import { Msg } from "./type/Msg";
-export type MessageBus<CM extends ConnectionMap> = {
+import { Serializer } from "./Serializer";
+export type MessageBus<CM extends ConnectionMap, SerializedData> = {
     requestMany: <S extends keyof CM>(subject: S, request: CM[S]["request"], options?: Partial<{
         headers?: Record<keyof CM[S]["headers"], string>;
         timeoutMs: number;
@@ -22,12 +23,13 @@ export type MessageBus<CM extends ConnectionMap> = {
         signal?: AbortSignal;
     }>) => Promise<void>;
 };
-export declare const MessageBus: <CM extends ConnectionMap>({ channel, subscribers, options, obs, }: {
-    channel: ReturnType<typeof Channel<Uint8Array>>;
+export declare const MessageBus: <CM extends ConnectionMap, SerializedData>({ channel, subscribers, options, obs, }: {
+    channel: Channel<SerializedData>;
     subscribers?: Partial<{ [k in keyof CM]: ConnectionListener<CM, k>; }>;
     obs?: Observe;
     options?: Partial<{
         signal?: AbortSignal;
         defaultTimeoutMs: number;
+        serializer: Serializer<SerializedData>;
     }>;
-}) => Promise<MessageBus<CM>>;
+}) => Promise<MessageBus<CM, SerializedData>>;

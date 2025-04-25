@@ -1,10 +1,7 @@
 import { AbortablePoster } from "./type/AbortablePoster";
 import { AbortableListener } from "./type/AbortableListener";
 import { ChannelMessage } from "./type/ChannelMessage";
-export declare const Channel: <T>({ posterProducer, listenerProducer, }: {
-    posterProducer: AbortablePoster<ChannelMessage<T>>;
-    listenerProducer: AbortableListener<ChannelMessage<T>>;
-}) => {
+export type Channel<T> = {
     postOn: (subject: string, data: T, options?: Partial<{
         signal?: AbortSignal;
         reply: string;
@@ -15,7 +12,7 @@ export declare const Channel: <T>({ posterProducer, listenerProducer, }: {
         }) => T | void | AsyncIterable<T> | Promise<void> | Promise<T>;
         signal?: AbortSignal;
         once?: boolean;
-    }>) => AsyncGenerator<Awaited<T>, void, unknown>;
+    }>) => AsyncIterable<T>;
     request: (operation: string, requestData: T, options?: Partial<{
         signal: AbortSignal;
         timeoutMs: number;
@@ -26,3 +23,7 @@ export declare const Channel: <T>({ posterProducer, listenerProducer, }: {
         callback?: (responseData: T) => void;
     }>) => Promise<AsyncIterable<T>>;
 };
+export declare const Channel: <T>({ posterProducer, listenerProducer, }: {
+    posterProducer: AbortablePoster<ChannelMessage<T>>;
+    listenerProducer: AbortableListener<ChannelMessage<T>>;
+}) => Channel<T>;
