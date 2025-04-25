@@ -2,11 +2,14 @@ import { isDefined } from "@mjt-engine/object";
 import { Channel } from "./Channel";
 import { ChannelMessage } from "./type/ChannelMessage";
 import { Emitter } from "./type/Emitter";
+import { Observe } from "@mjt-engine/observe";
 
 export const EmitterChannel = <T = unknown>(
-  emitter: Emitter<ChannelMessage<T>>
+  emitter: Emitter<ChannelMessage<T>>,
+  obs: Observe
 ) => {
   return Channel<T>({
+    obs,
     posterProducer: (signal) => (eventName) => {
       return (msg) => {
         if (signal?.aborted) {

@@ -19,7 +19,7 @@ describe("Mbs", () => {
 
     const bus = await MessageBus({
       obs,
-      channel: EmitterChannel(new EventEmitter()),
+      channel: EmitterChannel(new EventEmitter(), obs),
       subscribers: {
         test: (request) => {
           return `${request} world`;
@@ -33,7 +33,7 @@ describe("Mbs", () => {
     const expected = "hello world";
     const bus = await MessageBus({
       obs,
-      channel: EmitterChannel(new EventEmitter()),
+      channel: EmitterChannel(new EventEmitter(), obs),
     });
     bus.subscribe("test-sub", (request) => {
       return `${request} world`;

@@ -144,8 +144,8 @@ export const MessageBus = async <CM extends ConnectionMap, SerializedData>({
       } satisfies Msg<MsgRequest>);
 
       const channelRequestSpan = requestSpan
-        .span(subject as string)
-        .log("requestData", requestData);
+        .span(`channel:request:${subject as string}`)
+        // .log("requestData", requestData);
       const resp = await channel.request(subject as string, requestData, {
         timeoutMs,
       });

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { EmitterChannel } from "./EmitterChannel";
 import { EventEmitter } from "node:events";
+import { Observe } from "@mjt-engine/observe";
 
 // test("regex listen/post", async () => {
 //   const elc = EmitterChannel<string>(new EventEmitter());
@@ -16,9 +17,10 @@ import { EventEmitter } from "node:events";
 // });
 
 describe("EventEmmitterChannel", () => {
+  const obs = Observe();
   test("nothing", async () => {});
   test("listen/post", async () => {
-    const elc = EmitterChannel<string>(new EventEmitter());
+    const elc = EmitterChannel<string>(new EventEmitter(), obs);
     const result = await new Promise((resolve) => {
       elc.listenOn("test", {
         callback: (data) => {
@@ -30,7 +32,7 @@ describe("EventEmmitterChannel", () => {
     expect(result).toBe("got:Hello, world!");
   });
   test("async itr listen/post", async () => {
-    const elc = EmitterChannel<string>(new EventEmitter());
+    const elc = EmitterChannel<string>(new EventEmitter(), obs);
     const promise = new Promise(async (resolve) => {
       for await (const data of elc.listenOn("test", {
         callback: (d, meta) => {
@@ -51,7 +53,7 @@ describe("EventEmmitterChannel", () => {
     expect(await promise).toBe("got:transformed:3");
   });
   test("req/rep", async () => {
-    const elc = EmitterChannel<string>(new EventEmitter());
+    const elc = EmitterChannel<string>(new EventEmitter(), obs);
     elc.listenOn("test", {
       callback: (data) => {
         return `Hello, ${data}`;
@@ -61,7 +63,7 @@ describe("EventEmmitterChannel", () => {
     expect(resp).toBe("Hello, 123");
   });
   test("req/rep many", async () => {
-    const elc = EmitterChannel<string>(new EventEmitter());
+    const elc = EmitterChannel<string>(new EventEmitter(), obs);
     elc.listenOn("test", {
       callback: async function* (data) {
         yield `${data} 1`;
@@ -78,7 +80,7 @@ describe("EventEmmitterChannel", () => {
     expect(results).toEqual(["123 1", "123 2", "123 3"]);
   });
   test("req/rep many on non-iter", async () => {
-    const elc = EmitterChannel<string>(new EventEmitter());
+    const elc = EmitterChannel<string>(new EventEmitter(), obs);
     elc.listenOn("test", {
       callback: (data) => {
         return `${data} 1`;

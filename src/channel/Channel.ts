@@ -1,6 +1,7 @@
 import { AbortablePoster } from "./type/AbortablePoster";
 import { AbortableListener } from "./type/AbortableListener";
 import { ChannelMessage } from "./type/ChannelMessage";
+import { Observe } from "@mjt-engine/observe";
 
 export type Channel<T> = {
   postOn: (
@@ -44,9 +45,11 @@ export type Channel<T> = {
 export const Channel = <T>({
   posterProducer,
   listenerProducer,
+  obs,
 }: {
   posterProducer: AbortablePoster<ChannelMessage<T>>;
   listenerProducer: AbortableListener<ChannelMessage<T>>;
+  obs: Observe;
 }): Channel<T> => {
   const mod: Channel<T> = {
     postOn: (
@@ -57,8 +60,10 @@ export const Channel = <T>({
         reply: string;
       }> = {}
     ): void => {
+      const span = obs.span(`postOn:${subject}`);
       const { signal, reply } = options;
       posterProducer(signal)(subject)({ subject, data, reply });
+      span.end();
     },
     listenOn: function (
       subject: string,
@@ -71,6 +76,7 @@ export const Channel = <T>({
         once?: boolean;
       }> = {}
     ) {
+      const span = obs.span(`listenOn:${subject}`);
       const { signal, once, callback } = options;
       const abortCotroller = new AbortController();
       if (signal?.aborted) {
@@ -126,6 +132,7 @@ export const Channel = <T>({
           return msg;
         }
       );
+      span.end();
       return (async function* () {
         for await (const msg of itr) {
           yield msg.data;
@@ -137,6 +144,7 @@ export const Channel = <T>({
       requestData: T,
       options: Partial<{ signal: AbortSignal; timeoutMs: number }> = {}
     ): Promise<T> => {
+      const span = obs.span(`request:${operation}`);
       const { signal, timeoutMs } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
@@ -164,6 +172,7 @@ export const Channel = <T>({
         mod.listenOn(responseSubject, {
           callback: (responseData) => {
             clearTimeout(timeoutId!);
+            span.end();
             resolve(responseData);
           },
           signal,
@@ -181,6 +190,7 @@ export const Channel = <T>({
         callback?: (responseData: T) => void;
       }> = {}
     ): Promise<AsyncIterable<T>> => {
+      const span = obs.span(`requestMany:${operation}`);
       const { signal, timeoutMs, callback } = options;
       const responseSubject = `response-${Date.now()}-${crypto.randomUUID()}`;
       return new Promise((resolve, reject) => {
@@ -212,6 +222,7 @@ export const Channel = <T>({
             }
             if (meta.finished) {
               clearTimeout(timeoutId!);
+              span.end();
               return resolve(itr);
             }
           },
