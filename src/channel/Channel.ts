@@ -60,7 +60,7 @@ export const Channel = <T>({
         reply: string;
       }> = {}
     ): void => {
-      const span = obs.span(`postOn:${subject}`);
+      const span = obs.span(`postOn`);
       const { signal, reply } = options;
       posterProducer(signal)(subject)({ subject, data, reply });
       span.end();
@@ -76,7 +76,7 @@ export const Channel = <T>({
         once?: boolean;
       }> = {}
     ) {
-      const span = obs.span(`listenOn:${subject}`);
+      const span = obs.span(`listenOn`);
       const { signal, once, callback } = options;
       const abortCotroller = new AbortController();
       if (signal?.aborted) {
