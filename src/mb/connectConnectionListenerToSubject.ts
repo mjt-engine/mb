@@ -10,7 +10,7 @@ import { Serializer } from "./type/Serializer";
 export const connectConnectionListenerToSubject = async <
   S extends keyof CM,
   CM extends ConnectionMap,
-  SerializedData
+  SerializedData = unknown
 >({
   channel,
   subject,

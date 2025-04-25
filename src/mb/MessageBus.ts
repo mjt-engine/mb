@@ -9,7 +9,7 @@ import { Msg } from "./type/Msg";
 import { PassThroughSerializer } from "./PassThroughSerializer";
 import { Serializer } from "./type/Serializer";
 
-export type MessageBus<CM extends ConnectionMap, SerializedData> = {
+export type MessageBus<CM extends ConnectionMap, SerializedData = unknown> = {
   requestMany: <S extends keyof CM>(
     subject: S,
     request: CM[S]["request"],
