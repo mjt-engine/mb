@@ -1,6 +1,9 @@
 # Changelog
 
 
+## 2025-05-01
+- remove deps from build artifacts ([8e0ba9e](https://github.com/mjt-engine/mb/commit/8e0ba9ef170291f2b9f2a98bc94628ebf0e904c7)) by Matt Taylor
+
 ## 2025-04-25
 - only include subjec ton span for request/Many ([b64795f](https://github.com/mjt-engine/mb/commit/b64795f33570a14973c0a11a220803cee391eb7f)) by Matt Taylor
 - added observation of Channel ([0010ff9](https://github.com/mjt-engine/mb/commit/0010ff961b0d8cd272d426980a81517b28c54b0e)) by Matt Taylor

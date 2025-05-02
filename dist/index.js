@@ -1,463 +1,265 @@
-const ae = (e) => {
-  const t = e.split("."), r = t.shift(), s = t.join(".");
+import { isUndefined as S, isDefined as $ } from "@mjt-engine/object";
+import { Observe as O } from "@mjt-engine/observe";
+import { Errors as v } from "@mjt-engine/error";
+const j = (e) => {
+  const c = e.split("."), l = c.shift(), u = c.join(".");
   return {
-    root: r,
-    segments: t,
-    subpath: s
+    root: l,
+    segments: c,
+    subpath: u
   };
-}, k = (e) => "value" in e && e.value !== void 0, L = (e) => "error" in e && e.error !== void 0, oe = (e) => k(e) || L(e), N = (e) => {
-  const t = e;
-  return typeof t == "object" && t !== null && "data" in t;
-}, j = (e) => {
-  const t = e;
-  return N(e) && t.meta?.hasError || !1;
-}, A = (e) => typeof e == "function", E = (e) => e == null || Number.isNaN(e), T = (e) => !E(e), J = (e) => A(e) ? e() : e, B = (e, t = {}) => {
-  const { quiet: r = !1, def: s = void 0, onError: n } = t;
-  try {
-    return e();
-  } catch (i) {
-    return r || (console.error(i), T(n) && console.log(J(n))), s;
-  }
-}, G = {
-  isDefined: T,
-  isUndefined: E,
-  safe: B
-}, { isDefined: $, isUndefined: P, safe: D } = G, I = (e) => e == null || Number.isNaN(e), V = (e) => !I(e), K = {
-  isDefined: V,
-  isUndefined: I
-}, { isDefined: h, isUndefined: Q } = K, F = (e, t, r) => {
-  if (Q(e))
-    return;
-  const s = t.get(e);
-  if (h(s))
-    return s;
-  if (h(r)) {
-    const n = r();
-    return t.set(e, n), n;
-  }
-}, H = () => {
-  const e = /* @__PURE__ */ new Map();
-  let t = performance.now();
-  const r = {
-    get: (s, n) => F(s, e, n),
-    set: (s, n) => (e.set(s, n), r),
-    delete: (s) => e.delete(s),
-    entries: () => Array.from(e.entries()),
-    clear: () => e.clear(),
-    size: () => e.size,
-    findKeys: (s) => Array.from(e.entries()).filter(([n, i]) => i === s).map(([n, i]) => n),
-    lastUpdate: () => t
-  };
-  return r;
-}, W = {
-  create: H
-}, X = (e) => (t) => {
-  if (typeof e == "string")
-    return new RegExp(e).test(t.traceId);
-  const {
-    traceId: r,
-    message: s,
-    extra: n = () => !0,
-    timestamp: i = () => !0
-  } = e;
-  return !(r && !new RegExp(r).test(t.traceId) || s && !new RegExp(s).test(t.message) || t.timestamp && !i(t.timestamp) || t.extra && !n(t.extra));
-}, Y = (e) => (t) => {
-  for (const r of e)
-    if (X(r)(t))
-      return r;
-  return !1;
-}, Z = (e) => (t) => typeof e == "string" ? t : e.transform ? e.transform(t) : t, w = (e) => {
-  const t = [], r = {
-    length: 0,
-    push: (s) => {
-      t.length >= e && t.shift(), t.push(s), r.length = t.length;
-    },
-    get: () => t,
-    clear: () => {
-      t.length = 0, r.length = 0;
-    },
-    last: () => t[t.length - 1]
-  };
-  return r;
-}, q = () => {
-  let e = performance.now(), t;
-  const r = {
-    end: () => (h(t) || (t = performance.now()), r),
-    getDuration: () => (t ?? performance.now()) - e
-  };
-  return r;
-}, _ = (e = 100) => {
-  let t = 0;
-  const r = /* @__PURE__ */ new Map(), s = /* @__PURE__ */ new Map(), n = /* @__PURE__ */ new Map(), i = w(e), c = {
-    clear: () => (t = 0, r.clear(), s.clear(), n.clear(), i.clear(), c),
-    lastTime: () => i.last(),
-    time: () => {
-      const a = c.lastTime();
-      h(a) && a.end();
-      const l = q();
-      return i.push(l), l;
-    },
-    getTimes: () => i.get(),
-    timer: (a) => {
-      const l = n.get(a) ?? w(e);
-      n.set(a, l);
-      const o = q();
-      return l.push(o), o;
-    },
-    increment: (a, l = 1) => {
-      const o = r.get(a) ?? 0;
-      r.set(a, o + l);
-    },
-    gauge: (a, l = 0) => {
-      s.set(a, l);
-    },
-    getCounters: () => new Map(r),
-    getCounter: (a) => r.get(a) ?? 0,
-    getGauge: (a) => s.get(a) ?? 0,
-    getGauges: () => new Map(s),
-    count: (a = 1) => {
-      t += a;
-    },
-    getCount: () => t,
-    getTimers: (a) => (n.get(a) ?? w(e)).get()
-  };
-  return c;
-}, ee = ({
-  logMatchers: e = [],
-  logger: t = console.log,
-  clock: r = performance,
-  maxSampleSize: s = 100
-} = {}) => {
-  const n = W.create(), i = {
-    getTraceIds: () => n.entries().map(([c]) => c),
-    start: (c, ...a) => {
-      i.getStats(c).count(), i.getStats(c).time(), i.log({ traceId: c, message: "start", extra: a });
-    },
-    getStats: (c) => n.get(c, () => _(s)),
-    log: ({ traceId: c, message: a, timestamp: l = r.now(), extra: o = [] }) => {
-      const f = {
-        traceId: c,
-        message: a,
-        timestamp: l,
-        extra: o
-      }, g = Y(e)(f);
-      if (!g)
-        return;
-      const u = Z(g)(f);
-      t(
-        `${u.timestamp} ${u.traceId}: ${u.message}`,
-        ...u.extra ?? []
-      );
-    },
-    end: (c, ...a) => {
-      i.getStats(c).lastTime()?.end(), i.log({ traceId: c, message: "end", extra: a });
-    }
-  };
-  return i;
-}, O = (e = "", t = ee()) => {
-  t.start(e);
-  const r = {
-    span: (s) => O(`${e}.${s}`, t),
-    increment: (s, n = 1) => (t.getStats(e).increment(s, n), r),
-    sample: (s, n, i) => {
-      if (Math.random() < s) {
-        const c = i();
-        r.gauge(n, c);
-      }
-      return r;
-    },
-    when: (s, n, i) => {
-      if (s()) {
-        const c = i();
-        r.gauge(n, c);
-      }
-      return r;
-    },
-    gauge: (s, n) => (t.getStats(e).gauge(s, n), r),
-    timer: (s) => t.getStats(e).timer(s),
-    end: () => (t.end(e), r),
-    log: (s, ...n) => (t.log({ traceId: e, message: s, extra: n }), r)
-  };
-  return r;
-}, S = (e) => {
-  const { message: t, stack: r, extra: s, cause: n } = e, i = n ? `
-Caused by: ${S(n)}` : "", c = s ? `
-Extra: ${JSON.stringify(s, void 0, 2)}` : "";
-  return [t, r].filter($).join(`
-`) + c + i;
-}, z = (e) => typeof e == "string" ? e : e instanceof Response ? `${e.url} ${e.status} ${e.statusText}` : typeof e == "object" && e !== null && "message" in e ? S(e) : D(() => JSON.stringify(e, void 0, 2)) ?? "", te = async (e) => {
-  if (typeof e == "string")
-    return e;
-  if (e instanceof Response) {
-    const t = await e.text();
-    return `${e.url} ${e.status} ${e.statusText} ${t}`;
-  }
-  return typeof e == "object" && e !== null && "message" in e ? S(e) : D(() => JSON.stringify(e, void 0, 2)) ?? "";
-}, C = ({ error: e, extra: t, stack: r }) => {
-  if (e instanceof Error) {
-    const s = $(e.cause) ? C({ error: e.cause }) : void 0;
-    return {
-      message: e.message,
-      stack: e.stack ?? r,
-      extra: t,
-      cause: s
-    };
-  }
-  return {
-    message: z(e),
-    stack: r,
-    extra: t
-  };
-}, ne = {
-  errorToErrorDetail: C,
-  errorToText: z,
-  errorToTextAsync: te
-}, M = async ({
+}, D = (e) => "value" in e && e.value !== void 0, z = (e) => "error" in e && e.error !== void 0, P = (e) => D(e) || z(e), T = (e) => {
+  const c = e;
+  return typeof c == "object" && c !== null && "data" in c;
+}, C = (e) => {
+  const c = e;
+  return T(e) && c.meta?.hasError || !1;
+}, w = async ({
   channel: e,
-  subject: t,
-  connectionListener: r,
-  serializer: s,
-  options: n = {}
+  subject: c,
+  connectionListener: l,
+  serializer: u,
+  options: s = {}
 }) => {
-  const { log: i = () => {
-  }, signal: c } = n;
-  i("connectConnectionListenerToSubject: subject: ", t);
-  for await (const a of e.listenOn(t, {
-    callback: async (l) => {
-      const o = s.deserialize(l), { data: f, meta: g } = o;
-      if (j(o))
-        throw console.error("Error in message: ", o), new Error(
-          `connectConnectionListenerToSubject: Unexpected error in request message: ${o?.data?.message}`
+  const { log: f = () => {
+  }, signal: p } = s;
+  f("connectConnectionListenerToSubject: subject: ", c);
+  for await (const i of e.listenOn(c, {
+    callback: async (a) => {
+      const t = u.deserialize(a), { data: r, meta: d } = t;
+      if (C(t))
+        throw console.error("Error in message: ", t), new Error(
+          `connectConnectionListenerToSubject: Unexpected error in request message: ${t?.data?.message}`
         );
       try {
-        const u = await r(f, {
-          headers: g?.headers,
-          signal: c
+        const n = await l(r, {
+          headers: d?.headers,
+          signal: p
         });
-        return s.serialize({
-          data: u
+        return u.serialize({
+          data: n
         });
-      } catch (u) {
-        const d = ne.errorToErrorDetail({ error: u });
-        return s.serialize({
-          data: d,
+      } catch (n) {
+        const o = v.errorToErrorDetail({ error: n });
+        return u.serialize({
+          data: o,
           meta: {
             hasError: !0,
             code: 500,
-            status: d.message
+            status: o.message
           }
         });
       }
     }
   }))
     ;
-}, se = () => ({
+}, I = () => ({
   serialize: (e) => e,
   deserialize: (e) => e
-}), ie = async ({
+}), x = async ({
   channel: e,
-  subscribers: t = {},
-  options: r = {},
-  obs: s = O()
+  subscribers: c = {},
+  options: l = {},
+  obs: u = O()
 }) => {
-  const n = s.span("MessageBus"), {
-    defaultTimeoutMs: i = 60 * 1e3,
-    signal: c,
-    serializer: a = se()
-  } = r, l = Object.entries(t);
-  n.log("connect: subscribers: ", l);
-  for (const [o, f] of l)
-    P(f) || M({
-      serializer: a,
+  const s = u.span("MessageBus"), {
+    defaultTimeoutMs: f = 60 * 1e3,
+    signal: p,
+    serializer: i = I()
+  } = l, a = Object.entries(c);
+  s.log("connect: subscribers: ", a);
+  for (const [t, r] of a)
+    S(r) || w({
+      serializer: i,
       channel: e,
-      subject: o,
-      connectionListener: f,
-      options: r
+      subject: t,
+      connectionListener: r,
+      options: l
     });
   return {
-    requestMany: async (o, f, g = {}) => {
-      const u = n.span("requestMany"), { timeoutMs: d = 60 * 1e3, headers: p, callback: m } = g, y = a.serialize({
-        data: f,
-        meta: { headers: p }
-      }), b = u.span("channel requestMany").log("start requestMany", o), U = await e.requestMany(
-        o,
-        y,
+    requestMany: async (t, r, d = {}) => {
+      const n = s.span("requestMany"), { timeoutMs: o = 60 * 1e3, headers: y, callback: b } = d, m = i.serialize({
+        data: r,
+        meta: { headers: y }
+      }), h = n.span("channel requestMany").log("start requestMany", t), g = await e.requestMany(
+        t,
+        m,
         {
-          timeoutMs: d
+          timeoutMs: o
         }
       );
-      for await (const R of U) {
-        if (c?.aborted)
+      for await (const M of g) {
+        if (p?.aborted)
           return;
-        const v = a.deserialize(R);
-        await m?.(v);
+        const E = i.deserialize(M);
+        await b?.(E);
       }
-      b.end(), u.end();
+      h.end(), n.end();
     },
-    request: async (o, f, g = {}) => {
-      const u = n.span("request").log("subject", o), { timeoutMs: d = i, headers: p } = g, m = a.serialize({
-        data: f,
-        meta: { headers: p }
-      }), y = u.span(`channel:request:${o}`), b = await e.request(o, m, {
-        timeoutMs: d
+    request: async (t, r, d = {}) => {
+      const n = s.span("request").log("subject", t), { timeoutMs: o = f, headers: y } = d, b = i.serialize({
+        data: r,
+        meta: { headers: y }
+      }), m = n.span(`channel:request:${t}`), h = await e.request(t, b, {
+        timeoutMs: o
       });
-      return y.end(), u.end(), a.deserialize(b);
+      return m.end(), n.end(), i.deserialize(h);
     },
-    publish: async (o, f, g = {}) => {
-      const { headers: u } = g, d = a.serialize({
-        data: f,
-        meta: { headers: u }
+    publish: async (t, r, d = {}) => {
+      const { headers: n } = d, o = i.serialize({
+        data: r,
+        meta: { headers: n }
       });
-      return n.span("publish").log("subject", o), e.postOn(o, d);
+      return s.span("publish").log("subject", t), e.postOn(t, o);
     },
-    subscribe: async (o, f, g = {}) => (n.span("subscribe").log("subject", o), M({
+    subscribe: async (t, r, d = {}) => (s.span("subscribe").log("subject", t), w({
       channel: e,
-      serializer: a,
-      subject: o,
-      connectionListener: f,
-      options: g
+      serializer: i,
+      subject: t,
+      connectionListener: r,
+      options: d
     }))
   };
-}, re = ({
+}, L = ({
   posterProducer: e,
-  listenerProducer: t,
-  obs: r
+  listenerProducer: c,
+  obs: l
 }) => {
-  const s = {
-    postOn: (n, i, c = {}) => {
-      const a = r.span("postOn"), { signal: l, reply: o } = c;
-      e(l)(n)({ subject: n, data: i, reply: o }), a.end();
+  const u = {
+    postOn: (s, f, p = {}) => {
+      const i = l.span("postOn"), { signal: a, reply: t } = p;
+      e(a)(s)({ subject: s, data: f, reply: t }), i.end();
     },
-    listenOn: function(n, i = {}) {
-      const c = r.span("listenOn"), { signal: a, once: l, callback: o } = i, f = new AbortController();
-      if (a?.aborted)
-        throw new Error(`listenOn: Signal is already aborted for ${n}`);
-      a?.addEventListener("abort", () => {
-        f.abort();
+    listenOn: function(s, f = {}) {
+      const p = l.span("listenOn"), { signal: i, once: a, callback: t } = f, r = new AbortController();
+      if (i?.aborted)
+        throw new Error(`listenOn: Signal is already aborted for ${s}`);
+      i?.addEventListener("abort", () => {
+        r.abort();
       });
-      const g = t(f.signal)(n)(
-        async (u) => {
-          if (u.subject === n) {
-            l && f.abort();
-            const d = await o?.(u.data, {
-              finished: u.finished ?? !1
+      const d = c(r.signal)(s)(
+        async (n) => {
+          if (n.subject === s) {
+            a && r.abort();
+            const o = await t?.(n.data, {
+              finished: n.finished ?? !1
             });
-            if (u.reply && d && (x(d) ? (async () => {
-              for await (const p of d)
-                e(f.signal)(u.reply)({
-                  subject: u.reply,
-                  data: p
+            if (n.reply && o && (q(o) ? (async () => {
+              for await (const y of o)
+                e(r.signal)(n.reply)({
+                  subject: n.reply,
+                  data: y
                 });
-              e(f.signal)(u.reply)({
-                subject: u.reply,
+              e(r.signal)(n.reply)({
+                subject: n.reply,
                 data: void 0,
                 finished: !0
               });
-            })() : e(f.signal)(u.reply)({
-              subject: u.reply,
-              data: d,
+            })() : e(r.signal)(n.reply)({
+              subject: n.reply,
+              data: o,
               finished: !0
-            })), d && !x(d))
-              return { ...u, data: d };
+            })), o && !q(o))
+              return { ...n, data: o };
           }
-          return u;
+          return n;
         }
       );
-      return c.end(), async function* () {
-        for await (const u of g)
-          yield u.data;
+      return p.end(), async function* () {
+        for await (const n of d)
+          yield n.data;
       }();
     },
-    request: async (n, i, c = {}) => {
-      const a = r.span(`request:${n}`), { signal: l, timeoutMs: o } = c, f = `response-${Date.now()}-${crypto.randomUUID()}`;
-      return new Promise((g, u) => {
-        l?.aborted && u(
-          new Error(`request: Signal is already aborted for ${n}`)
-        ), l?.addEventListener("abort", () => {
-          u(new Error("Request aborted"));
+    request: async (s, f, p = {}) => {
+      const i = l.span(`request:${s}`), { signal: a, timeoutMs: t } = p, r = `response-${Date.now()}-${crypto.randomUUID()}`;
+      return new Promise((d, n) => {
+        a?.aborted && n(
+          new Error(`request: Signal is already aborted for ${s}`)
+        ), a?.addEventListener("abort", () => {
+          n(new Error("Request aborted"));
         });
-        let d;
-        o && (d = setTimeout(() => {
-          u(
+        let o;
+        t && (o = setTimeout(() => {
+          n(
             new Error(
-              `request: Request timed out after ${o}ms for ${n}`
+              `request: Request timed out after ${t}ms for ${s}`
             )
           );
-        }, o)), s.listenOn(f, {
-          callback: (p) => {
-            clearTimeout(d), a.end(), g(p);
+        }, t)), u.listenOn(r, {
+          callback: (y) => {
+            clearTimeout(o), i.end(), d(y);
           },
-          signal: l,
+          signal: a,
           once: !0
-        }), s.postOn(n, i, { reply: f, signal: l });
+        }), u.postOn(s, f, { reply: r, signal: a });
       });
     },
-    requestMany: async (n, i, c = {}) => {
-      const a = r.span(`requestMany:${n}`), { signal: l, timeoutMs: o, callback: f } = c, g = `response-${Date.now()}-${crypto.randomUUID()}`;
-      return new Promise((u, d) => {
-        l?.aborted && d(
-          new Error(`requestMany: Signal is already aborted for ${n}`)
-        ), l?.addEventListener("abort", () => {
-          d(new Error("Request aborted"));
+    requestMany: async (s, f, p = {}) => {
+      const i = l.span(`requestMany:${s}`), { signal: a, timeoutMs: t, callback: r } = p, d = `response-${Date.now()}-${crypto.randomUUID()}`;
+      return new Promise((n, o) => {
+        a?.aborted && o(
+          new Error(`requestMany: Signal is already aborted for ${s}`)
+        ), a?.addEventListener("abort", () => {
+          o(new Error("Request aborted"));
         });
-        let p;
-        o && (p = setTimeout(() => {
-          d(
+        let y;
+        t && (y = setTimeout(() => {
+          o(
             new Error(
-              `requestMany: Request timed out after ${o}ms for ${n}`
+              `requestMany: Request timed out after ${t}ms for ${s}`
             )
           );
-        }, o));
-        const m = s.listenOn(g, {
-          callback: (y, b) => {
-            if (y !== void 0 && f?.(y), b.finished)
-              return clearTimeout(p), a.end(), u(m);
+        }, t));
+        const b = u.listenOn(d, {
+          callback: (m, h) => {
+            if (m !== void 0 && r?.(m), h.finished)
+              return clearTimeout(y), i.end(), n(b);
           },
-          signal: l
+          signal: a
         });
-        return s.postOn(n, i, { reply: g, signal: l }), m;
+        return u.postOn(s, f, { reply: d, signal: a }), b;
       });
     }
   };
-  return s;
+  return u;
 };
-function x(e) {
+function q(e) {
   return e != null && typeof e[Symbol.asyncIterator] == "function";
 }
-const ce = (e, t) => re({
-  obs: t,
-  posterProducer: (r) => (s) => (n) => {
-    r?.aborted || e.emit(s, n);
+const A = (e, c) => L({
+  obs: c,
+  posterProducer: (l) => (u) => (s) => {
+    l?.aborted || e.emit(u, s);
   },
-  listenerProducer: (r) => (s) => (n) => {
-    const i = [], c = {
+  listenerProducer: (l) => (u) => (s) => {
+    const f = [], p = {
       resolve: void 0
-    }, a = async (l) => {
-      if (r?.aborted)
+    }, i = async (a) => {
+      if (l?.aborted)
         return;
-      const o = await n?.(l), f = $(o) ? o : l;
-      i.push(f), c.resolve?.();
+      const t = await s?.(a), r = $(t) ? t : a;
+      f.push(r), p.resolve?.();
     };
-    return r?.addEventListener("abort", () => {
-      e.off(s, a);
-    }), e.on(s, a), {
+    return l?.addEventListener("abort", () => {
+      e.off(u, i);
+    }), e.on(u, i), {
       [Symbol.asyncIterator]: async function* () {
-        for (; !r?.aborted; )
-          i.length > 0 ? yield i.shift() : await new Promise((l) => {
-            c.resolve = l;
+        for (; !l?.aborted; )
+          f.length > 0 ? yield f.shift() : await new Promise((a) => {
+            p.resolve = a;
           });
       }
     };
   }
 });
 export {
-  re as Channel,
-  ce as EmitterChannel,
-  ie as MessageBus,
-  L as isError,
-  j as isErrorMsg,
-  N as isMsg,
-  k as isValue,
-  oe as isValueOrError,
-  ae as parseSubject
+  L as Channel,
+  A as EmitterChannel,
+  x as MessageBus,
+  z as isError,
+  C as isErrorMsg,
+  T as isMsg,
+  D as isValue,
+  P as isValueOrError,
+  j as parseSubject
 };
